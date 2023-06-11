@@ -1,5 +1,5 @@
 ## ADA 442
-<img src="img/ids-logo.png" alt="introdata.science logo with a human figure juggling charts, a computer, a database and a book" width="150" align = "right"/>
+<img src="img/ISLR.jpg" width="150" align = "right"/>
 
   
 ### Statistical Learning with R
@@ -78,6 +78,8 @@ Everything on this website except the videos are licensed under [Creative Common
 The videos are copyrighted and all rights are reserved.
 
 <hr>
+
+<img src="img/TEDU.png" width="150" align = "right"/>
 
 
 

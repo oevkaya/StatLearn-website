@@ -1,27 +1,75 @@
-## ICS 80
+## ADA 442
 <img src="img/ids-logo.png" alt="introdata.science logo with a human figure juggling charts, a computer, a database and a book" width="150" align = "right"/>
 
-
   
-### Introduction Data Science 
-University of California Irvine 
+### Statistical Learning with R
+TED University remote lecture series notes organized for 
 
-Fall 2021 
+Fall/Spring 2021-2022
 
-[Dr. Mine Dogucu](https://minedogucu.com)  
-
+[Dr. Ozan Evkaya](https://ozanevkaya.netlify.app/)  
     
 <hr>
 
-This course introduces the full data cycle. Topics include data collection and retrieval, data cleaning, exploratory analysis and visualization, introduction to statistical modeling and inference, and communicating findings. Applications include real data from wide-range of fields following reproducible practices. 
+This course introduces the introductory level of Statistical Learning with R course notes that are designed for 2021. Lecture slides are created by using the main course book and related readings. Weekly slides and hands-on session materials are all created by R programming. 
 
-Course website is hosted at [introdata.science](https://introdata.science).
+Main objective of this course is to introduce fundamental statistical modeling
+techniques to students and enable them to solve real life problems using
+these various methods using R language as a statistical computation tool.
+
+Applications include real data from wide-range of fields following reproducible practices. Homeworks will be assessed individually, but the project can be prepared as a small team (it depends on the total number of enrolments for the course).
 
 <hr>
 
-**Students** if you see anything missing or broken links please feel free to file an issue in this repo or let me know. Note that this is a public repo so if you create an issue it would be publicly be available. If you are concerned about privacy you can directly email me.
+**Course Descriptions**
+
+- Statistical Learning and Data Pre-processing, 
+- Supervised versus Unsupervised Learning,
+- Prediction versus Classification, 
+- Simple and Multiple Linear Regressions, Classification,
+- Logistic Regression, 
+- Cross Validation and Bootstrap, 
+- Linear Model Selection and
+- Regularization, Nonlinear Regression algorithms, 
+- Decision Trees and its derivatives, 
+- Principal Component Analysis, 
+- Clustering methods
+
+<hr>
+
+**Course Sources**
+
+*Main Textbook:* 
+
+An Introduction to Statistical Learning with Applications in R”,
+James G., Witten D., Hastie T, Tibshirani R., Springer ISBN 978-1-4614-7138-7.
+
+Available online: https://www.statlearning.com/
+
+*Supplementary Materials:*
+
+[Hands on Machine Learning with R](https://bradleyboehmke.github.io/HOML/)
+
+[Applied Predictive Modeling](http://appliedpredictivemodeling.com/)
+
+[Intro to Data Science- Data Analysis and Prediction Algorithms in R](https://rafalab.github.io/dsbook/)
+
+[Supervised Machine Learning](https://bookdown.org/mpfoley1973/supervised-ml/)
+
+[R For Data Science](https://r4ds.had.co.nz/)
+
+Note that Turkish version of the R for Data Science (r4ds) is available via
+http://tr.r4ds.hadley.nz
+
+<hr>
+
+If you see anything missing or broken links please feel free to file an issue in this repo or let me know. 
+
+Note that this is a public repo so if you create an issue it would be publicly be available. If you are concerned about privacy you can directly email me.
 
 **Instructors** if you are planning to use any of the website design or resources (except the videos) feel free to do so but please attribute accordingly. 
+
+**My credit for the course repo initial design for Introduction Data Science University of California Irvine, designed by Mine Dogucu** 
 
 Everything on this website except the videos are licensed under [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-nc-sa/4.0/).
 
@@ -31,10 +79,5 @@ The videos are copyrighted and all rights are reserved.
 
 <hr>
 
-<img src="img/nsf-logo.png" alt="NSF logo" width="100" align = "left">
-
-<br>
-<br>
-Part of this work is supported by NSF HDR DSC award #2123366
 
 

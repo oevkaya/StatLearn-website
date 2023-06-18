@@ -1,0 +1,359 @@
+---
+title: "Lecture Notes - Week 2"
+author: "Before Implementing any model ?"
+date: "`r Sys.Date()`"
+output: 
+  slidy_presentation:
+    display: "C" 
+    incremental: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Data Preprocessing
+
+- **Data pre-processing** techniques generally refer to the addition, deletion, or
+transformation of training set data. 
+
+- **Different models have different sensitivities** to the type of
+predictors in the model; how the predictors enter the model is also important.
+
+- **Transformations of the data** to reduce the impact of data skewness or outliers
+can lead to significant improvements in performance. 
+
+- Additionally, simpler strategies such as removing predictors based on their lack of information content can also be effective
+
+- The need for **data pre-processing** is determined by the **type of model** being used. Some procedures, such as tree-based models, are notably insensitive to the characteristics of the predictor data. Others, like linear regression, are not.
+
+- How the predictors are encoded, called **feature engineering**, can have a
+significant impact on model performance. For example, using combinations
+of predictors can sometimes be more effective than using the individual values:
+the ratio of two predictors may be more effective than using two independent predictors
+
+- As with many questions of statistics, the answer to **which feature engineering
+methods are the best?** is that it depends. Specifically, it depends on
+the model being used and the true relationship with the outcome.
+
+Reading: 3.1 Case Study: Cell Segmentation in High-Content
+Screening from the book of 
+Applied Predictivel Modeling (Kuhn and Johnson) 
+
+## Data Transformations for Individual Predictors
+
+- Transformations of predictor variables may be needed for several reasons.
+Some modeling techniques may have strict requirements, such as the predictors
+having a common scale. 
+
+- In other cases, creating a good model may be
+difficult due to specific characteristics of the data (e.g., outliers). 
+
+- Here we discuss centering, scaling, and skewness transformations
+
+## Centering and Scaling
+
+- The most straightforward and common data transformation is to center scale
+the predictor variables. To center a predictor variable, the average predictor
+value is subtracted from all the values. As a result of centering, the predictor
+has a zero mean. Similarly, to scale the data, each value of the predictor
+variable is divided by its standard deviation. Scaling the data coerce the
+values to have a common standard deviation of one.
+
+- The only real downside to these transformations is a loss
+of interpretability of the individual values since the data are no longer in the
+original units.
+
+Mainly we have, 
+
+* Standardization
+  - Standardization is another scaling technique where the values are centered around the mean with a unit standard deviation. This means that the mean of the attribute becomes zero and the resultant distribution has a unit standard deviation.
+ 
+$$X_s = \frac{X - \mu}{\sigma}$$
+
+* Normalization
+  - Normalization is a scaling technique in which values are shifted and rescaled so that they end up ranging between 0 and 1. It is also known as Min-Max scaling.
+  
+$$X_n = \frac{X - \min(X)}{\max(X) - \min(X)}$$
+
+## Which one ? 
+
+- Normalization is good to use when you know that the distribution of your data does not follow a Gaussian distribution. This can be useful in algorithms that do not assume any distribution of the data like K-Nearest Neighbors and Neural Networks.
+
+- Standardization, on the other hand, can be helpful in cases where the data follows a Gaussian distribution. However, this does not have to be necessarily true. Also, unlike normalization, standardization does not have a bounding range. So, even if you have outliers in your data, they will not be affected by standardization.
+
+- However, at the end of the day, the choice of using normalization or standardization will depend on your problem and the machine learning algorithm you are using
+
+- It is a good practice to fit the scaler on the training data and then use it to transform the testing data. This would avoid any data leakage during the model testing process. Also, the scaling of target values is generally not required.
+
+** Transformations to Resolve Skewness
+
+- Another common reason for transformations is to remove distributional skewness.
+An un-skewed distribution is one that is roughly symmetric. This means
+that the probability of falling on either side of the distribution’s mean is
+roughly equal
+
+- Replacing the data with the log, square root, or inverse may help to remove
+the skew. 
+
+![](Transformation.png)
+
+
+## Transformations to Resolve Outliers
+
+- We will generally define outliers as samples that are exceptionally far from
+the mainstream of the data. 
+
+- Under certain assumptions, there are formal statistical
+definitions of an outlier. Even with a thorough understanding of the
+data, outliers can be hard to define. 
+
+- However, we can often identify an unusual value by looking at a figure. 
+
+- When one or more samples are suspected to be outliers, the first step is to make sure that the values are scientifically valid (e.g., positive blood pressure) and that no data recording errors have occurred. 
+
+- Great care should be taken not to hastily remove or change values,
+especially if the sample size is small
+
+- Also, the outlying data may be an indication of a special part of the population under 
+study that is just starting to be sampled. Depending on how the data were collected, 
+a **cluster** of valid points that reside outside the mainstream of the data might belong to a different population than the other samples
+
+- If a model is considered to be sensitive to outliers, one data transformation
+that can minimize the problem is the spatial sign (Serneels et al. 2006). This
+procedure projects the predictor values onto a multidimensional sphere
+
+How can we detect these values ? 
+
+## Data Reduction and Feature Extraction
+
+- Data reduction techniques are another class of predictor transformations.
+
+- These methods reduce the data by generating a smaller set of predictors that
+seek to capture a majority of the information in the original variables. 
+
+- In this way, fewer variables can be used that provide reasonable fidelity to the
+original data. 
+
+- For most data reduction techniques, the new predictors are functions of the original 
+predictors; therefore, all the original predictors are still needed to create the surrogate variables. 
+
+- This class of methods is often called **signal extraction** or **feature extraction** techniques.
+
+## Target Engineering
+
+- Although not always a requirement, transforming the response variable can lead to predictive improvement, especially with parametric models (which require that certain assumptions about the model be met).
+
+![](SkewedTrans.png)
+
+Source: Figure 3.1 from https://bradleyboehmke.github.io/HOML/engineering.html#
+
+Check the details for Ames housing data example in this open book !
+
+## Two options 
+
+- **Option 1:** normalize with a log transformation. This will transform most right skewed distributions to be approximately normal. One way to do this is to simply log transform the training and test set in a manual, single step manner similar to
+
+- **Option 2:** use a Box Cox transformation. A Box Cox transformation is more flexible than (but also includes as a special case) the log transformation and will find an appropriate transformation from a family of power transforms that will transform the variable as close as possible to a normal distribution (Box and Cox 1964; Carroll and Ruppert 1981)
+
+- The **optimal value** is the one which results in the best transformation to an approximate normal distribution. The transformation of the response $Y$ has the form;
+
+$$y(\lambda) = \frac{Y^\lambda -1 }{\lambda}, \lambda \neq 0$$; 
+$$y(\lambda) = log(Y), \lambda = 0$$
+
+- Be sure to compute the lambda on the training set and apply that same $\lambda$ to both 
+the training and test set to minimize **data leakage**. 
+
+- The recipes package automates this process for you ! Check it out
+
+## Feature filtering
+
+- In many data analyses and modeling projects we end up with hundreds or even thousands of collected features. From a practical perspective, a model with more features often becomes harder to interpret and is costly to compute.
+
+- Zero and near-zero variance variables are low-hanging fruit to eliminate. Zero variance variables, meaning the feature only contains a single unique value, provides no useful information to a model. Some algorithms are unaffected by zero variance features
+
+- Furthermore, they can cause problems during resampling as there is a high probability that a given sample will only contain a single unique value (the dominant value) for that feature. 
+
+- A rule of thumb for detecting near-zero variance features is
+  * The fraction of unique values over the sample size is low ($\leq 10\%$)
+  * The ratio of the frequency of the most prevalent value to the frequency of the second most prevalent value is large ($\geq 20\%$)
+  
+- If both of these criteria are true then it is often advantageous to remove the variable from the model
+
+## Numeric feature engineering
+
+Numeric features can create a host of problems for certain models when their distributions are skewed, contain outliers, or have a wide range in magnitudes. Tree-based models are quite immune to these types of problems in the feature space, but many other models (e.g., GLMs, regularized regression, KNN, support vector machines, neural networks) can be greatly hampered by these issues. Normalizing and standardizing heavily skewed features can help minimize these concerns
+
+- Skewness
+  * Similar to the process discussed to normalize target variables, parametric models that have distributional assumptions (e.g., GLMs, and regularized models) can benefit from minimizing the skewness of numeric features. 
+  * When normalizing many variables, it’s best to use the Box-Cox (when feature values are strictly positive) or Yeo-Johnson (when feature values are not strictly positive) procedures as these methods will identify if a transformation is required and what the optimal transformation will be
+  * Non-parametric models are rarely affected by skewed features; however, normalizing features will not have a negative effect on these models’ performance. 
+  * For example, normalizing features will only shift the optimal split points in tree-based algorithms. Consequently, when in doubt, normalize.
+  
+- Standardization
+  * We must also consider the scale on which the individual features are measured. What are the largest and smallest values across all features and do they span several orders of magnitude?
+  * For these models and modeling components, it is often a good idea to standardize the features.
+  * Standardizing features includes centering and scaling so that numeric variables have zero mean and unit variance, which provides a common comparable unit of measure across all the variables
+  * You should standardize your variables within the recipe blueprint so that both training and test data standardization are based on the same mean and variance. This helps to minimize data leakage
+ 
+## Categorical feature engineering
+
+Most models require that the predictors take numeric form. There are exceptions; for example, tree-based models naturally handle numeric or categorical features. However, even tree-based models can benefit from preprocessing categorical features. The following sections will discuss a few of the more common approaches to engineer categorical features
+
+- Lumping
+  * Sometimes features will contain levels that have very few observations.
+  * Sometimes we can benefit from collapsing, or “lumping” these into a lesser number of categories. In the above examples, we may want to collapse all levels that are observed in less than 10% of the training sample into an “other” category
+  * However, lumping should be used sparingly as there is often a loss in model performance 
+(Kuhn and Johnson 2013)
+  * Tree-based models often perform exceptionally well with high cardinality features and are not as impacted by levels with small representation
+ 
+## One-hot and dummy encoding
+
+- Many models require that all predictor variables be numeric. Consequently, we need to intelligently transform any categorical variables into numeric representations so that these algorithms can compute. 
+
+- Some packages automate this process (e.g., h2o and caret) while others do not (e.g., glmnet and keras). There are many ways to recode categorical variables as numeric (e.g., one-hot, ordinal, binary, sum, and Helmert).
+
+- The most common is referred to as one-hot encoding, where we transpose our categorical variables so that each level of the feature is represented as a boolean value
+
+![](OneHotEncoding.png)
+
+- This is called less than full rank encoding. However, this creates perfect collinearity which causes problems with some predictive modeling algorithms (e.g., ordinary linear regression and neural networks). Alternatively, we can create a full-rank encoding by dropping one of the levels (level c has been dropped). This is referred to as dummy encoding.
+
+## Label encoding
+
+- Label encoding is a pure numeric conversion of the levels of a categorical variable. 
+
+- If a categorical variable is a factor and it has pre-specified levels then the numeric conversion will be in level order. 
+
+- If no levels are specified, the encoding will be based on alphabetical order.
+
+- We should be careful with label encoding unordered categorical features because most models will treat them as ordered numeric features. 
+
+- If a categorical feature is naturally ordered then label encoding is a natural choice (most commonly referred to as ordinal encoding)
+
+## Dealing with Missing Values
+
+- In many cases, some predictors have no values for a given sample. 
+
+- It is important to understand why the values are missing. First and foremost, it is important to know if the pattern of missing data is related to the outcome. This is called **informative missingness** since the missing data pattern is instructional on its own. 
+
+- Informative missingness can induce significant bias in the model
+
+- Missing data should not be confused with censored data where the exact
+value is missing but something is known about its value. For example, a
+company that rents movie disks by mail may use the duration that a customer
+has kept a movie in their models. If a customer has not yet returned a movie,
+we do not know the actual time span, only that it is as least as long as the
+current duration.
+
+- When building traditional statistical models focused on interpretation or inference, the censoring is usually taken into account in a formal manner by making assumptions about the censoring mechanism. For predictive models, it is more common to treat these data as simple missing data or use the censored value as the observed value
+
+## How to deal with ? 
+
+- There are cases where the missing values might be concentrated in specific
+samples. For large data sets, removal of samples based on missing values is
+not a problem, assuming that the missingness is not informative. In smaller
+data sets, there is a steep price in removing samples; some of the alternative
+approaches described below may be more appropriate
+
+- If we do not remove the missing data, there are two general approaches.
+First, a few predictive models, especially tree-based techniques, can specifically
+account for missing data
+
+- Alternatively, missing data can be imputed. In this case, we can use information
+in the training set predictors to, in essence, estimate the values
+of other predictors. This amounts to a predictive model within a predictive
+model
+
+## For further alternatives
+
+- Encoding Categorical Variables
+
+- Removing Predictors
+
+- Adding Predictors
+
+- Binning Predictors
+
+For the details, look at the pages 43-50 of the book of 
+Applied Predictivel Modeling (Kuhn and Johnson)
+
+Reading: Feature and Target Engineering from the book of Hands-On Machine Learning with R 
+(Boehmke and Greenwell)
+
+## Data Leakage
+
+- **Data leakage** is when information from outside the training data set is used to create the model. 
+
+- Data leakage often occurs during the data pre-processing period. To minimize this, feature engineering should be done in isolation of each re-sampling iteration. 
+
+- Recall that re-sampling allows us to estimate the generalizable prediction error. Therefore, we should apply our feature engineering blueprint to each re-sample independently as illustrated below.
+
+- That way we are not leaking information from one data set to another (each resample is designed to act as isolated training and test data).
+
+## How ? 
+
+![](DataLeak.png)
+
+- For example, when standardizing numeric features, each resampled training data should use its own mean and variance estimates and these specific values should be applied to the same resampled test set. 
+
+- This imitates how real-life prediction occurs where we only know our current data’s mean and variance estimates; therefore, on new data that comes in where we need to predict we assume the feature values follow the same distribution of what we’ve seen in the past.
+
+## Unbalanced Data
+
+- In this context, **unbalanced data refers to classification problems** where we have unequal instances for different classes. 
+
+- Having unbalanced data is actually very common in general, but it is especially prevalent when working with disease data where we usually have more healthy control samples than disease cases. 
+
+- Even more extreme unbalance is seen with **fraud detection**, where e.g. most credit card uses are okay and only very few will be fraudulent
+
+- **Classification algorithms are sensitive to unbalance in the predictor classes**. Let’s consider the breast cancer dataset: assume we had 10 malignant vs 90 benign samples. 
+
+- A model that has been trained and tested on such a data set could now predict “benign” for all samples and still gain a very high accuracy. 
+
+- An **unbalanced data** set will **bias the prediction model** towards the more 
+**common class** !
+
+## How to balance ? 
+
+- With under-sampling, we randomly select a subset of samples from the class with more instances 
+to match the number of samples coming from each class. We would randomly pick 241 out of the 458 benign cases. 
+
+- The **main disadvantage of under-sampling** is that we lose potentially relevant information 
+from the left-out samples.
+
+- With oversampling, we **randomly duplicate samples from the class with fewer instances** or we generate additional instances based on the data that we have, so as to match the number of samples in each class. 
+
+- While we avoid losing information with this approach, we also **run the risk of overfitting** our model as we are more likely to get the same samples in the training and in the test data, i.e. **the test data is no longer independent from training data**. This would lead to an overestimation of our model’s performance and generalisability.
+
+- In reality, we should not simply perform over-sampling or under-sampling on our training data before running the model. We need to account for **cross-validation** and perform over- or under-sampling on each fold independently to get an honest estimate of model performance!
+
+## Some Readings
+
+- https://bradleyboehmke.github.io/HOML/engineering.html#
+
+- https://github.com/Quartz/bad-data-guide
+
+- https://www.machinelearningplus.com/machine-learning/caret-package/
+
+- https://shiring.github.io/machine_learning/2017/04/02/unbalanced
+
+- https://mmuratarat.github.io/turkish/2022-02-13/handling_missing_values_in_ML
+
+- https://medium.com/@ozanevkaya/bu-verilerin-nesi-var-9be98f2050dd
+
+- https://medium.com/@ozanevkaya/r-paketlerinde-bug%C3%BCn-naniar-3b81c8ff2952
+
+To watch for caret package 
+
+- https://www.youtube.com/watch?v=SYUMTRt70pk
+
+- https://www.youtube.com/watch?v=9vrf9O5ef6g
+
+
+
+
+
+
+
+

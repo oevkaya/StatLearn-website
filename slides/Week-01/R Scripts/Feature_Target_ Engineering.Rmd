@@ -1,0 +1,199 @@
+---
+title: "Lecture Notes - Week 2"
+author: "Feature and Target Engineering"
+date: "`r Sys.Date()`"
+output: 
+  slidy_presentation:
+    display: "C" 
+    incremental: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Data Preprocessing
+
+- **Data pre-processing** techniques generally refer to the addition, deletion, or
+transformation of training set data. 
+
+- **Different models have different sensitivities** to the type of
+predictors in the model; how the predictors enter the model is also important.
+
+- **Transformations of the data** to reduce the impact of data skewness or outliers
+can lead to significant improvements in performance. 
+
+- Additionally, simpler strategies such as removing predictors based on their lack of information content can also be effective
+
+- The need for **data pre-processing** is determined by the **type of model** being used. Some procedures, such as tree-based models, are notably insensitive to the characteristics of the predictor data. Others, like linear regression, are not.
+
+- How the predictors are encoded, called **feature engineering**, can have a
+significant impact on model performance. For example, using combinations
+of predictors can sometimes be more effective than using the individual values:
+the ratio of two predictors may be more effective than using two independent predictors
+
+- As with many questions of statistics, the answer to **which feature engineering
+methods are the best?** is that it depends. Specifically, it depends on
+the model being used and the true relationship with the outcome.
+
+Reading: 3.1 Case Study: Cell Segmentation in High-Content
+Screening from the book of 
+Applied Predictivel Modeling (Kuhn and Johnson) 
+
+## Data Transformations for Individual Predictors
+
+- Transformations of predictor variables may be needed for several reasons.
+Some modeling techniques may have strict requirements, such as the predictors
+having a common scale. 
+
+- In other cases, creating a good model may be
+difficult due to specific characteristics of the data (e.g., outliers). 
+
+- Here we discuss centering, scaling, and skewness transformations
+
+## Centering and Scaling
+
+
+- The most straightforward and common data transformation is to center scale
+the predictor variables. To center a predictor variable, the average predictor
+value is subtracted from all the values. As a result of centering, the predictor
+has a zero mean. Similarly, to scale the data, each value of the predictor
+variable is divided by its standard deviation. Scaling the data coerce the
+values to have a common standard deviation of one.
+
+- The only real downside to these transformations is a loss
+of interpretability of the individual values since the data are no longer in the
+original units.
+
+Mainly we have, 
+
+* Standardization
+ - Standardization is another scaling technique where the values are centered around the mean with a unit standard deviation. This means that the mean of the attribute becomes zero and the resultant distribution has a unit standard deviation.
+ 
+$$X_s = \frac{X - \mu}{\sigma}$$
+
+* Normalization
+  - Normalization is a scaling technique in which values are shifted and rescaled so that they end up ranging between 0 and 1. It is also known as Min-Max scaling.
+  
+$$X_n = \frac{X - \min(X)}{\max(X) - \min(X)}$$
+
+## Which one ? 
+
+- Normalization is good to use when you know that the distribution of your data does not follow a Gaussian distribution. This can be useful in algorithms that do not assume any distribution of the data like K-Nearest Neighbors and Neural Networks.
+
+- Standardization, on the other hand, can be helpful in cases where the data follows a Gaussian distribution. However, this does not have to be necessarily true. Also, unlike normalization, standardization does not have a bounding range. So, even if you have outliers in your data, they will not be affected by standardization.
+
+- However, at the end of the day, the choice of using normalization or standardization will depend on your problem and the machine learning algorithm you are using
+
+- It is a good practice to fit the scaler on the training data and then use it to transform the testing data. This would avoid any data leakage during the model testing process. Also, the scaling of target values is generally not required.
+
+** Transformations to Resolve Skewness
+
+- Another common reason for transformations is to remove distributional skewness.
+An un-skewed distribution is one that is roughly symmetric. This means
+that the probability of falling on either side of the distribution’s mean is
+roughly equal
+
+- Replacing the data with the log, square root, or inverse may help to remove
+the skew. 
+
+![](Transformation.png)
+
+
+## Transformations to Resolve Outliers
+
+- We will generally define outliers as samples that are exceptionally far from
+the mainstream of the data. 
+
+- Under certain assumptions, there are formal statistical
+definitions of an outlier. Even with a thorough understanding of the
+data, outliers can be hard to define. 
+
+- However, we can often identify an unusual value by looking at a figure. 
+
+- When one or more samples are suspected to be outliers, the first step is to make sure that the values are scientifically valid (e.g., positive blood pressure) and that no data recording errors have occurred. 
+
+- Great care should be taken not to hastily remove or change values,
+especially if the sample size is small
+
+- Also, the outlying data may be an indication of a special part of the population under 
+study that is just starting to be sampled. Depending on how the data were collected, 
+a **cluster** of valid points that reside outside the mainstream of the data might belong to a different population than the other samples
+
+- If a model is considered to be sensitive to outliers, one data transformation
+that can minimize the problem is the spatial sign (Serneels et al. 2006). This
+procedure projects the predictor values onto a multidimensional sphere
+
+How can we detect these values ? 
+
+## Data Reduction and Feature Extraction
+
+- Data reduction techniques are another class of predictor transformations.
+
+- These methods reduce the data by generating a smaller set of predictors that
+seek to capture a majority of the information in the original variables. 
+
+- In this way, fewer variables can be used that provide reasonable fidelity to the
+original data. 
+
+- For most data reduction techniques, the new predictors are functions of the original 
+predictors; therefore, all the original predictors are still needed to create the surrogate variables. 
+
+- This class of methods is often called **signal extraction** or **feature extraction** techniques.
+
+## Dealing with Missing Values
+
+- In many cases, some predictors have no values for a given sample. 
+
+- It is important to understand why the values are missing. First and foremost, it is important to know if the pattern of missing data is related to the outcome. This is called **informative missingness** since the missing data pattern is instructional on its own. 
+
+- Informative missingness can induce significant bias in the model
+
+- Missing data should not be confused with censored data where the exact
+value is missing but something is known about its value. For example, a
+company that rents movie disks by mail may use the duration that a customer
+has kept a movie in their models. If a customer has not yet returned a movie,
+we do not know the actual time span, only that it is as least as long as the
+current duration.
+
+- When building traditional statistical models focused on interpretation or inference, the censoring is usually taken into account in a formal manner by making assumptions about the censoring mechanism. For predictive models, it is more common to treat these data as simple missing data or use the censored value as the observed value
+
+## How to deal with ? 
+
+- There are cases where the missing values might be concentrated in specific
+samples. For large data sets, removal of samples based on missing values is
+not a problem, assuming that the missingness is not informative. In smaller
+data sets, there is a steep price in removing samples; some of the alternative
+approaches described below may be more appropriate
+
+- If we do not remove the missing data, there are two general approaches.
+First, a few predictive models, especially tree-based techniques, can specifically
+account for missing data
+
+- Alternatively, missing data can be imputed. In this case, we can use information
+in the training set predictors to, in essence, estimate the values
+of other predictors. This amounts to a predictive model within a predictive
+model
+
+## For further alternatives
+
+- Encoding Categorical Variables
+
+- Removing Predictors
+
+- Adding Predictors
+
+- Binning Predictors
+
+For the details, look at the pages 43-50 of the book of 
+Applied Predictive Modeling (Kuhn and Johnson)
+
+Reading: Feature and Target Engineering from the book of Hands-On Machine 
+Learning with R (Boehmke and Greenwell)
+
+
+
+
+
+
+

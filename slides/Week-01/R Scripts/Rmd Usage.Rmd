@@ -1,0 +1,77 @@
+---
+title: "About Rmarkdown"
+author: "Basic Info"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+There are three main structural elements to an R Markdown document:
+
+### Header (YAML header)
+
+The section at the beginning of the document within subsequent - - - signs is call the header. This is where you
+will specify the title and author of the document. The output: statement indicates what type
+of document you wish to generate when you click on knit button. The option pdf_document will
+create a .pdf document, whilst html_document creates a .html page.
+
+
+### R code Chunk
+
+An R code chunk enables you to embed code into your document. If correctly created, the lines within the R chunk should be
+highlighted in grey. You can include a unique label to each of the chunks by typing it within the
+curly brackets at the beginning of the code chunk. Additional requirements can also be specified
+here such as to not show the output or to not evaluate the code.
+To test whether to code within a chunk works correctly, you can run the code by clicking on the
+run chunk button . Any output will appear below the chunk within the markdown document.
+
+```{r carseat, echo = TRUE}
+library(ISLR2)
+data("Carseats")
+
+# Descriptive statistics for Carseats variables
+summary(Carseats)
+
+```
+
+
+### Body 
+
+The body of the markdown document is all of the remaining lines of the file. Here you can write
+section heading (using #) and subheading (##) to structure your document, and write plain text
+to give written based answers to questions or explain the meaning of the R output. Markdown
+supports LATEXcoding, which allows you to write mathematical formulas within a pair of dollar
+symbols, e.g.$y = \alpha + \beta x$ will be presented as y = α + βx.
+Note: If there is a mistake in your code (either in the markdown, R chunk or LATEX), the output
+is not created until you fix it. Details of the error can be found under the ‘R Markdown’ tab in the
+bottom-left panel. The alternative would be to not to use the R Markdown file and just type and
+save your solutions for the computer workshop in an R script as described earlier.
+
+### Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=TRUE}
+plot(pressure)
+```
+
+If you set `echo = FALSE` parameter was added to the code chunk, it prevents printing of the R code that generated the plot.
+
+For some other options check out this cheat sheet for Rmd file usage;
+
+https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf
+
+

@@ -1,0 +1,341 @@
+---
+title: "Missing Data"
+date: "`r Sys.Date()`"
+output: 
+  slidy_presentation:
+    display: "C" 
+    incremental: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Dealing with missing data
+
+Missing data are very frequently found in datasets. Base R provides a few options to handle them using computations that involve only observed data ( na.rm = TRUE in functions mean, var, ... or use = complete.obs|na.or.complete|pairwise.complete.obs in functions cov, cor, ...). The base package stats also contains the generic function na.action that extracts information of the NA action used to create an object.
+
+These basic options are complemented by many packages on CRAN, which we structure into main topics:
+
+- Exploration of missing data
+- Likelihood based approaches
+- Single imputation
+- Multiple imputation
+- Weighting methods
+- Specific types of data
+- Specific application fields
+
+For problem specific solutions, investigate the webpage below
+
+https://cran.r-project.org/web/views/MissingData.html
+
+## Naniar Package
+
+Missing values are ubiquitous in data and need to be explored and handled in the initial stages of analysis. 'naniar' provides data structures and functions that facilitate the plotting of missing values and examination of imputations. This allows missing data dependencies to be explored with minimal deviation from the common work patterns of 'ggplot2' and tidy data. The work is fully discussed at Tierney & Cook (2018) <arXiv:1809.02264>.
+
+Check the all vignettes about the package from here ;
+
+https://cran.r-project.org/web/packages/naniar/index.html
+
+## Introduction for naniar
+
+
+Missing values are ubiquitous in data and need to be carefully explored and handled in the initial stages of analysis. Main goal is try to answer the following questions 
+
+* Start looking at missing data?
+* Explore missingness mechanisms?
+* Model missingness?
+
+
+When you start with a dataset, you might do something where you look at the general summary, using functions such as
+
+```{r}
+# direct usage is possible
+# summary() 
+# str()
+
+#After installing and calling necessary packages
+# skimr::skim
+# dplyr::glimpse()
+```
+
+These works really well when you’ve got a small amount of data, but when you have more data, you are generally limited by how much you can read. So before you start looking at missing data, you’ll need to look at the data, but what does that even mean? 
+
+The package visdat helps you get a handle on this. visdat provides a visualisation of an entire data frame at once
+
+```{r}
+library(visdat)
+vis_dat(airquality)
+```
+
+The function vis_miss provides a summary of whether the data is missing or not. It also provides the amount of missings in each columns.
+
+```{r}
+vis_miss(airquality)
+```
+
+So here, Ozone and Solar.R have the most missing data, with Ozone having 24.2% missing data and Solar.R have 4.6%. The other variables do not have any missing data.
+
+## Exploring missingness relationships
+
+We can identify key variables that are missing using vis_miss, but for further exploration, we need to explore the relationship amongst the variables in this data. Typically, when exploring this data, you might want to explore the variables Solar.R and Ozone, and so plot a scatterplot of solar radiation and ozone, doing something like this:
+
+```{r}
+library(ggplot2)
+ggplot(airquality, 
+       aes(x = Solar.R, 
+           y = Ozone)) + 
+  geom_point()
+```
+
+The problem with this is that ggplot does not handle missings be default, and removes the missing values. This makes them hard to explore. It also presents the strange question of “how do you visualise something that is not there?”
+
+```{r warning=F}
+library(naniar)
+
+ggplot(airquality, 
+       aes(x = Solar.R, 
+           y = Ozone)) + 
+  geom_miss_point()
+```
+
+## Visualising missings in variables
+
+Another approach to visualising the missings in a dataset is to use the gg_miss_var plot:
+
+```{r}
+gg_miss_var(airquality)
+```
+
+
+To add facets in these plots, you can use the facet argument:
+
+```{r}
+gg_miss_var(airquality, facet = Month)
+```
+
+There are more visualisations available in naniar (each starting with gg_miss_) - you can see these in the “Gallery of Missing Data Visualisations” vignette.
+
+## Replacing existing values with NA
+
+When you are dealing with missing values, you might want to replace values with a missing values (NA). This is useful in cases when you know the origin of the data and can be certain which values should be missing. For example, you might know that all values of “N/A”, “N A”, and “Not Available”, or -99, or -1 are supposed to be missing.
+
+naniar provides functions to specifically work on this type of problem using the function replace_with_na. This function is the compliment to tidyr::replace_na, which replaces an NA value with a specified value, whereas naniar::replace_with_na replaces a value with an NA:
+
+```{r}
+# tidyr::replace_na: Missing values turns into a value (NA –> -99)
+
+# naniar::replace_with_na: Value becomes a missing value (-99 –> NA)
+```
+
+Example data set is 
+
+
+```{r}
+df <- tibble::tribble(
+  ~name,           ~x,  ~y,              ~z,  
+  "N/A",           1,   "N/A",           -100, 
+  "N A",           3,   "NOt available", -99,
+  "N / A",         NA,  "29",              -98,
+  "Not Available", -99, "25",              -101,
+  "John Smith",    -98, "28",              -1)
+df
+```
+
+What if we want to replace the value -99 in the x column with a missing value?
+
+```{r}
+df %>% replace_with_na(replace = list(x = -99))
+
+replace_with_na(df, replace = list(x = c(-99, -98)))
+```
+
+For example, if we want to replace all cases of -99 in our dataset, we write:
+
+```{r}
+df %>% replace_with_na_all(condition = ~.x == -99)
+```
+
+If you have a set of (annoying) repeating strings like various spellings of “NA”, then I suggest you first lay out all the offending cases
+
+```{r}
+# write out all the offending strings
+na_strings <- c("NA", "N A", "N / A", "N/A", "N/ A", "Not Available", "NOt available")
+
+df %>%
+  replace_with_na_all(condition = ~.x %in% na_strings)
+
+# Or by using built-in functions in naniar
+
+common_na_numbers
+common_na_strings
+
+df %>%
+  replace_with_na_all(condition = ~.x %in% common_na_strings)
+```
+
+The use of replace_with_na_at is similar but instead in this case you can specify the variables that you want affected by the rule that you state
+
+```{r}
+df %>% 
+  replace_with_na_at(.vars = c("x","z"),
+                     condition = ~.x == -99)
+```
+
+For further examples check the vignette document of the package
+
+https://cran.r-project.org/web/packages/naniar/vignettes/replace-with-na.html
+
+## The Details of Missingness
+
+The definition of missing data is any data value that is not stored as a variable in an observation of interest. Missing data can be problematic due to these reasons: (1) It reduces statistical power, (2) causes bias in estimation of parameters, (3) reduces the representativeness of the samples, and (4) it complicates analyses of the studies. Incompleteness in data can attenuate the ability of data scientists to mine for insights to be applied in making any sensible policy decisions, clinical prediction decisions or statistical inference making. As such, it is essential that data handling in the form of data imputation is done properly to ensure subsequent data analysis is reliable
+
+However, the approach to data handling is often confusing and may vary based on the purpose of use of the data. By studying the performance of data imputation methods for different data characteristics and different analysis aims, we can make betters decision on which methods are appropriate for dealing with missing data. Now, we will cover the types of missing data, how to handle them appropriately and some recommendations moving forward
+
+## Types of Missing Data
+
+According to the mechanisms of missingness, we assume three types of missing data
+
+1. Missing Completely at Random (MCAR)
+
+2. Missing at Random (MAR)
+
+3. Missing Not at Random (MNAR)
+
+For the details; https://www.rpubs.com/justjooz/miss_data
+
+## Handling Missing Data
+
+1. Listwise Deletion
+
+The most commonly used approach that data scientists use to deal with missing data is to simply omit cases with missing data, only analysing the rest of the dataset. This method is known as listwise deletion or complete-case analysis
+
+```{r}
+df2 <- df %>%
+  replace_with_na_all(condition = ~.x %in% na_strings)
+df2
+
+# Perform listwise deletion using na.omit(df)
+na.omit(df2)
+```
+
+Taking a larger airquality dataset, a dataset of daily air quality measurements in New York from May to September 1973, which has NA values within its variables. The rows of the dataset represent 154 consecutive days. Any deletion of these rows will affect the continuity of time, which may affect any time series analyses done
+
+```{r}
+library(datasets)
+head(airquality)
+```
+
+```{r}
+airquality_omit <- na.omit(airquality)
+head(airquality_omit)
+```
+
+we see that any rows that contained any NAs in any variable were removed from the dataframe
+
+## Handling Missing Data
+
+2. Pairwise Deletion
+
+Available-case analysis or pairwise deletion is an attempt to fix the problem of data loss as a result of listwise deletion. In this methodology, the means and co(variances) of all observed data are calculated.3 For variables X and Y, both their means are based on all cases of their respective observed values
+
+Let’s demonstrate Pairwise Deletion using the airquality dataset as an example!
+
+```{r}
+data <- airquality[, c("Ozone", "Solar.R", "Wind")]
+mu <- colMeans(data, na.rm = TRUE)
+cv <- cov(data, use = "pairwise")
+mu
+cv
+```
+Next, we use the lavaan() function from the lavaan package to take means and covariances as input instead of the lm() function, which does not
+
+```{r}
+library(lavaan)
+
+fit <- lavaan("Ozone ~ 1 + Wind + Solar.R
+              Ozone ~~ Ozone",
+             sample.mean = mu, sample.cov = cv,
+             sample.nobs = sum(complete.cases(data)))
+fit
+```
+
+This method of dealing with missing data is simple. With MCAR data, it still generates estimates of mean, correlations and covariances consistently.4 Despite its strengths, its applications are restricted to data that are MCAR. If data are not MCAR, estimates may be biased. In addition, pairwise deletion only applies to numerical values that follow a normal distribution approximately. This may not apply in reality, where we have variables with many mixed data types. 
+
+Therefore, the pairwise deletion method is best used to handle missing data where it follows an approximate normal distribution, where correlation between the observed variables are low and where the missing data is of MCAR in nature
+
+3. Mean Imputation
+
+Some data scientists or statisticians may look for a quick fix by replacing missing data with the mean. Mode is often used to impute categorical data. For example, in the airquality dataset, suppose that we want to impute the mean of its missing values. Here, we use the R package mice. By changing the argument method = mean, it specifies mean imputation, the argument m = 1 changes the iterations to 1 which means no (iteration). The theoretical rationale of using the mean to impute missing data is that the mean is a good estimate to randomly select an observation from a normal distribution
+
+```{r}
+# To check the indices where we have NAs
+is.na(airquality$Ozone)
+which(is.na(airquality$Ozone))
+
+# Calculate the mean by hand
+mean(airquality$Ozone, na.rm = TRUE)
+
+airquality$Ozone[which(is.na(airquality$Ozone))]
+
+airquality$Ozone[which(is.na(airquality$Ozone))] = mean(airquality$Ozone, na.rm = TRUE)
+airquality$Ozone
+```
+
+## Mice package
+
+```{r}
+library(mice)
+# library(mi)
+
+imp <- mice(airquality, method = "mean", m = 1, maxit = 1)
+imp
+
+hist(airquality$Ozone)
+```
+
+## Handling Missing Data
+
+4. Regression Imputation
+
+In regression imputation, we are basically taking what we know from other variables to produce smarter imputations. This is done so by first building linear model of the observed data. The missing data are then predicted using the fitted model
+
+The cases of MNAR data are problematic. The only way to obtain an unbiased estimate of the parameters in such a case is to model the missing data. The model may then be incorporated into a more complex one for estimating the missing values. Let’s try the regression imputation method on the airquality dataset!
+
+```{r}
+fit <- lm(Ozone ~ Solar.R, data = airquality)
+pred <- predict(fit, newdata = ic(airquality))
+```
+
+Apart from above methods, we have lots of options in general. We need to be careful about 
+the nature of the data, the problem we have before doing any imputation in general. 
+
+## General Recommendations
+
+1. Prevention
+
+The key to dealing with missing data is prevention. Missing data can greatly decrease the statistical power of a study in a dataset. Researchers should first and foremost, pay more attention to data collection methods in order to prevent missing data. Imputation and deletion techniques should only be done when the efforts to prevent missing data in data collection are maximised.
+
+2. Understand the Natures of Missing Data
+
+As described above about different natures of missing data, each missing data type, whether be it MCAR, MAR or MNAR, each has to be dealt with differently. A wrong implementation of data handling methods may lead to false statistical conclusions.
+
+3. Understand the Use of Data
+
+While it is important to know the nature of missing data, it is also important to know what the data will be used for. For example, if the data will be used for a time-series analysis, then simple listwise deletion will not work because that will remove dates/time from the data.
+
+4. Understand the Mechanisms of Data Handling Methods
+
+With the different data handling methods, it is simple for statisticians or the average data analyst to brush off the problem of missing data with a data handling method of choice. However, one should always take extra care to understand the mechanism behind the data handling methods, in order to not lose unnecesary statistical power or important data.
+
+5. Check the Data After Deletion/Imputation
+
+It is important for one to check back and do a simple plot to look at the difference the imputed data values make. This is so that if there were any spurious results in the insights gained from deeper data analysis, the data scientist can then backtrack and resolve any issues with data handling. It may also be possibly useful to attribute any outliers plotted to the imputed data instead of observed data.
+
+## Some related Sources
+
+* https://www.rpubs.com/justjooz/miss_data
+
+
+
+

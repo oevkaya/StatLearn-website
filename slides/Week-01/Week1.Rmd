@@ -1,0 +1,527 @@
+---
+title: "Lecture Notes - Week 1"
+author: "What is Statistical Learning?"
+date: "`r Sys.Date()`"
+output: 
+  slidy_presentation:
+    display: "C" 
+    incremental: true
+---
+
+```{r setup, include=FALSE, fig.height=4, fig.width= 4, fig.align= 'center'}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Three graphs as starter
+
+![](Intro3Figures.png)
+
+Source: Wage data, which contains income survey information for men
+from the central Atlantic region of the United States (ISLR book, page 2)
+
+## ABC of Statistical Learning
+
+Statistical learning refers to a set of tools for making sense of complex
+datasets.
+
+- Our aim is to **get knowledge** from the set of **data** with a **suitable model**
+
+- For this goal, we need a **certain level** of programming language skills, 
+in our case, **R-language**.
+
+## More Details
+
+- Statistical learning refers to a **vast set of tools** for understanding data.
+- Sometimes you can heard it as a **part of machine learning** nowadays.
+- Different learning methods (**supervised or unsupervised**, *prediction or classification*)
+
+- **Supervised**;
+  + building a statistical model for predicting, or estimating, an output based on one 
+or more inputs
+- **Unsupervised**;
+  + there are inputs but no supervising output; nevertheless we can learn relationships and structure from such data
+
+## Brief History
+
+- Though the term statistical learning is fairly new, many of the concepts that
+underlie the field were developed long ago.
+- At the beginning of the nineteenth
+century, the method of least squares was developed, implementing
+the earliest form of what is now known as linear regression, first applied for problems in astronomy.
+- In order to predict qualitative values, such as whether a patient survives or
+dies, or whether the stock market increases or decreases, linear discriminant
+analysis was proposed in 1936. 
+- In the 1940s, various authors put forth an alternative approach, logistic regression. 
+- In the early 1970s, the term generalized linear model was developed to describe an entire class of statistical learning methods that include both linear and logistic regression as special cases
+
+## Brief History
+
+- By the end of the 1970s, many more techniques for learning from data
+were available
+- the 1980s, computing technology had finally improved sufficiently
+that non-linear methods were no longer computationally prohibitive
+- In the mid 1980s, classification and regression trees were developed, followed
+shortly by generalized additive models
+- Neural networks gained popularity in the 1980s, and support vector machines arose 
+in the 1990s
+
+## Why do we need ? 
+
+- Many statistical learning methods are relevant and useful in a wide
+range of academic and non-academic disciplines, beyond just the statistical
+sciences. 
+
+- Statistical learning should not be viewed as a series of black boxes. No
+single approach will perform well in all possible applications. 
+
+- In our course, aim is understanding the steps to describe the model, intuition, assumptions, and trade-offs behind each of the methods that we consider
+
+- The course is intended for anyone who is interested in using modern statistical
+methods to extract the information from available data. 
+
+## Key important concepts
+
+- Type of variables 
+
+- Supervised / Unsupervised learning
+
+- Prediction / classification method
+
+- Parametric versus Non-parametric
+
+- Prediction Accuracy versus Model Interpretability
+
+- bias-variance trade-off (overfitting / underfitting problem)
+
+## Type of variables
+
+![](DataTypes.png)
+
+Source: http://www.intellspot.com/data-types/
+
+## Quantitative versus Qualitative
+
+![](QuanDataTypes.jpg)
+
+Source: https://slideplayer.com/slide/14728003/
+
+## Supervised versus Unsupervised
+
+![](SuperUnsuperLearn.png)
+
+Source: https://www.researchgate.net/publication/319937079_A_Machine_Learning_Framework_for_Sport_Result_Prediction
+
+## Supervised versus Unsupervised
+
+Most statistical learning problems fall into one of two categories:
+
+- Supervised: For each observation of the predictor measurement(s) 
+$x_i$, for $i = 1, \ldots, n$ there is an associated response measurement $y_i$.
+  * We wish to fit a model that relates the response to the
+predictors, with the aim of accurately predicting the response for future
+observations (prediction) or better understanding the relationship between
+the response and the predictors (inference)
+
+- Unsupervised: For each observation of the predictor measurement(s) 
+$x_i$, for $i = 1, \ldots, n$, but there is NO associated response value $y_i$.
+  * working blind; the situation
+is referred to as unsupervised because we lack a response variable
+that can supervise our analysis
+
+## Supervised versus Unsupervised
+
+![](SuperUnsuper.png)
+
+Source: https://www.researchgate.net/publication/329533120_Background_Augmentation_Generative_Adversarial_Networks_BAGANs_Effective_Data_Generation_Based_on_GAN-Augmented_3D_Synthesizing/figures?lo=1
+
+## Supervised versus Unsupervised
+
+![](SupUnsupMethods.jpg)
+
+Source: https://github.com/iammiori/data_analysis_python/issues/1
+
+## Prediction versus Classification
+
+Previously, we have seen the main types of variables as; i) quantitative or 
+ii) qualitative (or categorical). 
+
+- Quantitative variables take on numerical values.
+  * a person’s age
+  * height
+  * the value of a house
+
+- Qualitative variables take on values in one of K different classes, or categories
+  * person’s marital status
+  * the brand of a product
+  * cancer diagnosis
+  
+The distinction is not always that crisp. Be careful about it !
+
+**We tend to select statistical learning methods on the basis of whether
+the response is quantitative or qualitative. Whether the predictors are qualitative or quantitative is generally considered less important**
+
+## Prediction versus Classification
+
+![](PredClass.png)
+
+Source: Yasin Ceran, Machine Learning Tutorial, Week1-Part 1, Introduction.
+
+## Terminology Summary
+
+Basically, Predictive modeling can be defined as the process of uncovering relationships within data for predicting some desired outcome, over the below mentioned terms; 
+
+- **Sample, data point, observation, or instance** refer to a single,
+independent unit of data, such as a customer, patient, or compound.
+The term **sample** can also refer to a subset of data points, such as the
+training set sample. 
+
+- The **training set** consists of the data used to develop models while the **test
+or validation sets** are used solely for evaluating the performance of a final
+set of candidate models
+
+- The **predictors**, **independent variables**, **attributes**, or **descriptors** are the
+data used as input for the prediction equation
+
+- **Outcome**, **dependent variable**, **target**, **class**, or **response** refer to the outcome
+event or quantity that is being predicted
+
+- **Continuous data** have natural, numeric scales. Blood pressure, the cost of
+an item, or the number of bathrooms are all continuous. In the last case,
+the counts cannot be a fractional number, but is still treated as continuous
+data
+
+- **Categorical data**, otherwise known as **nominal**, **attribute**, or **discrete data**,
+take on specific values that have no scale. Credit status (“good” or “bad”)
+or color (“red,”“blue,” etc.) are examples of these data
+
+- **Model building**, **model training**, and **parameter estimation** all refer to the
+process of using data to determine values of model equations
+
+Reading: 1.4 Example Data Sets and Typical Data Scenarios from the book of 
+Applied Predictivel Modeling (Kuhn and Johnson) 
+
+## A simple case
+
+Imagine; you are statistical consultants hired by a company to
+investigate the relationship between advertising and sales of a particular
+product. 
+
+![](AdvertExample.png)
+
+Source: FIGURE 2.1 (ISLR book, page 16)
+
+GOAL: To develop an accurate model to predict sales on the basis 
+of the three media budgets
+
+## Basic Notation
+
+Generally speaking, by using input variables, we want to get information about the output variable.
+
+$Y$ is the quantitative response variable (sales) with $p$ different predictors $\mathbf{X} = (X_1, \ldots, X_p)$. Assume that the following relationship;
+
+$$Y  = f(\mathbf{X}) + \epsilon$$
+where $f$ is the fixed / unknown function of $\mathbf{X}$ and $\epsilon$ is the random error having the properties; 
+
+- independent from $\mathbf{X}$
+
+- has mean zero ($E[\epsilon] = \mu_{\epsilon} = 0$). 
+
+AIM: Estimate of $f$ to get the systematic information of $\mathbf{X}$ gives about $Y$. 
+
+NOTE: Statistical learning refers to a set of approaches for estimating $f$
+
+## Why Estimate f? 
+
+There are two main reasons that we may wish to estimate
+
+- Prediction
+
+- Inference
+ 
+## Prediction
+
+* a set of inputs X are readily available, but the output
+Y cannot be easily obtained.
+* since the error term averages to zero, $\widehat{Y} = \widehat{f}(X)$
+* The accuracy of $\widehat{Y}$ depends on two quantities;
+the *reducible error* and the *irreducible error*.
+
+Consider a given estimate $\widehat{f}$ and a set of predictors $X$, 
+which yields the prediction $\widehat{Y} = \widehat{f}(X)$ for the true value $Y$. 
+
+$E[Y-\widehat{Y}]^2 = E[f(X) +  \epsilon - \widehat{f}(X)]^2 \\ = [f(X) - \widehat{f}(X)]^2 + Var(\epsilon)$
+
+where $E[Y-\widehat{Y}]^2$ is the average or expected value of the squared distance between the prediction and true value, $Var(\epsilon)$ is the variance tied to the irreducible error term. 
+
+## Inference 
+
+* Instead of getting the unknown value of the response, we can interested in understanding the association between $Y$ and $X_{1:p}$. 
+* We wish to estimate f, but our goal is not necessarily to make predictions for Y
+* One can be interested in followings;
+  + Which predictors are associated with the response?
+  + What is the relationship between the response and each predictor?
+  + Can the relationship between Y and each predictor be adequately summarized
+using a linear equation, or is the relationship more complicated?
+
+Example: the Advertising data illustrated in Figure 2.1
+
+**REMARK: Depending on whether our ultimate goal is prediction, inference, or a
+combination of the two, different methods for estimating f may be appropriate**
+
+## How Estimate f ? 
+
+Many linear and non-linear approaches for estimating f but these methods share 
+certain characteristics; 
+
+- The we have observed a set of $n$ different data points
+
+- These observations are called the training data because we will use these
+to train, or teach, our model to estimate f 
+
+Let $(y_i, x_{i,j})$ be the set of response variable and its predictors. Here, 
+$x_{i,j}$ is the value of the $j$'th predictor (input), for observation $i$ withe the corresponding response $y_i$.  
+
+- In other words, find a function $\widehat{f}$ such that $Y \approx \widehat{f}$ for any observation of $(X, Y)$.
+
+- Most statistical learning methods for this task can be characterized as either parametric or non-parametric
+
+## Parametric versus Non-parametric
+
+Parametric methods involve a two-step model-based approach;
+
+- First make an assumption about the functional form of $f$. To illustrate, 
+
+linear case
+$f(X) = \beta_0 + \beta_1 X_1 \hspace{1cm} (1)$
+$f(X) = \beta_0 + \beta_1 X_1 + \ldots + \beta_p X_p \hspace{1cm} (2)$
+
+non-linear case
+$f(X) = \beta_0 + \beta_1 X_1 + \ldots + \beta_p X_p + \beta_{11} X_1^2 \hspace{1cm} (3)$
+
+When we decide the structure of f, the problem of estimating is greatly simplified.
+
+1. Instead of having to estimate an entirely
+arbitrary function $f(X)$, one only needs to estimate the pre-defined parameters. 
+
+To illustrate, one only needs to estimate
+the $p+1$ coefficients $\beta_0, \ldots, \beta_p$ in $(2)$
+
+2. After a model has been selected, we need a procedure that uses the
+training data to fit or train the model. Equivalently, find the values of 
+parameters in $(2)$ s.t 
+
+$Y \approx \beta_0 + \beta_1 X_1 + \ldots + \beta_p X_p$
+
+## Parametric versus Non-parametric
+
+Non-parametric methods do not make explicit assumptions about the functional
+form of $f$ at the beginning. 
+
+- they seek an estimate of f that gets as close to the
+data points as possible without being too rough or wiggly.
+
+- Such approaches can have a major advantage over parametric approaches: 
+by avoiding the assumption of a particular functional form for f, they have the potential to accurately fit a wider range of possible shapes for f
+
+- But non-parametric approaches do suffer from a major
+disadvantage: 
+  * since they do not reduce the problem of estimating f to a
+small number of parameters, a very large number of observations (far more
+than is typically needed for a parametric approach) is required in order to
+obtain an accurate estimate for $f$. 
+
+REMARK: there are advantages and disadvantages to parametric
+and non-parametric methods for statistical learning. We explore both types
+of methods
+
+## Prediction Accuracy versus Model Interpretability 
+
+![](Figure2.7.png)
+
+Source: FIGURE 2.7 (ISLR book, page 25)
+
+- When inference is the goal, there are clear advantages
+to using simple and relatively inflexible statistical learning methods.
+
+- however, we are only interested in prediction, and
+the interpretability of the predictive model is simply not of interest.
+
+## Training versus Testing sets
+
+we need to use observations that aren’t used in the training process. 
+Otherwise, the evaluation of the model would be biased. 
+
+![](splitting.png)
+
+![](splittingrule.png)
+
+80:20 is a good starting point but we need to make sure that the test set represents most of the variance in the dataset
+
+Source: https://www.baeldung.com/cs/train-test-datasets-ratio
+
+## Model Accuracy Assessment
+
+Why is it necessary to introduce so many different
+statistical learning approaches, rather than just a single best method? 
+
+- no one method dominates all others over all possible data sets
+
+- "all models are wrong, but some are useful" (G. Box)
+
+- Selecting the best model be one of the most challenging parts of performing statistical learning
+
+So one needs a measure to compare the performance of various models
+
+## Measuring the Quality of Fit
+
+In the regression setting, the most commonly-used measure is the mean 
+squared error (MSE)
+
+$MSE = \frac{1}{n} \sum_{i = 1}^{n} (y_i - \widehat{f}(x_i))^2$
+
+What is the interpretation ? 
+
+## What else ?
+
+![](modelAcc.png)
+
+Source: https://medium.com/acing-ai/how-to-evaluate-regression-models-d183b4f5853d
+
+## Overfitting versus Underfitting
+
+![](OverUnderfit.png)
+
+Source: https://andreaprovino.it/bias-variance-tradeoff/
+
+## Overfitting versus Underfitting
+
+![](ErrorBalance.png)
+
+Source: https://andreaprovino.it/bias-variance-tradeoff/
+
+## The bias-variance trade-off
+
+![](OverUnderfitRep.png)
+
+Source: https://medium.com/@toprak.mhmt/the-bias-variance-tradeoff-d9320282ac04
+
+## The bias-variance trade-off
+
+![](BiasVarTrade.png)
+
+Source: https://www.cheatsheets.aqeel-anwar.com
+
+## The bias-variance trade-off
+
+It is possible to show that the expected test MSE, for a given value $x_0$, can
+always be decomposed into the sum of three fundamental quantities;
+
+- the variance of $\widehat{f}(x_0)$
+
+- the squared bias of $\widehat{f}(x_0)$
+
+- the variance of the error terms, $\epsilon$
+
+$E(y_0 - \widehat{f}(x_0))^2 = Var(\widehat{f}(x_0)) + [Bias(\widehat{f}(x_0))^2] + Var(\epsilon)$
+
+Here, $E(y_0 - \widehat{f}(x_0))^2$ stands for the expected test MSE at $x_0$. The overall expected test MSE can be computed by averaging $E(y_0 -\widehat{f}(x_0))^2$ over all possible values of $x_0$ in the test set, $\sum E(y_n - \widehat{f}(x_n))^2 / n_{test}$
+
+## The bias-variance trade-off
+
+In order to minimize the expected test error, we need to select a statistical learning method that simultaneously achieves low variance and low bias. Besides, the expected test MSE can never lie below $Var(\epsilon)$, the irreducible error from !
+
+- If a method has high variance then small changes in the training data can result in large changes in $\widehat{f}(.)$. In general, more flexible statistical methods have higher variance. 
+
+- Generally, more flexible methods result in less bias. As a general rule, as we use more flexible methods, the variance will increase and the bias will decrease
+
+- Increasing bias (not always) reduces variance and vice-versa. Compromise between bias and variance. 
+
+- The best model is where the error is reduced. Good test set performance of a statistical learning method requires low variance as well as low squared bias. 
+
+## 
+
+![](MSEPattern.png)
+
+Source: FIGURE 2.12 (ISLR book, page 36)
+
+## Hands on session in R 
+
+![](ModelingFlow.png)
+
+Source: https://r4ds.had.co.nz/introduction.html
+
+## Basic Commands
+
+```{r, eval= F, echo= T}
+x <- c(1, 3, 2, 5)
+x
+length(x)
+
+y <- c(5, 6, 7, 5)
+
+x + y
+
+ls()
+rm(x, y)
+?matrix
+
+matrix(c(1, 2, 3, 4), 2, 2, byrow = TRUE)
+
+sqrt(x)
+x^2
+```
+
+## Basic Commands
+
+```{r}
+x <- rnorm (50)
+y <- x + rnorm (50, mean = 50, sd = .1)
+cor(x, y)
+
+set.seed (1303)
+rnorm (50)
+
+mean(y)
+
+var(y)
+sd(y)
+
+x <- seq(1, 10)
+x <- 1:10
+
+x <- seq(-pi, pi, length = 50)
+```
+
+## Indexing Data
+
+```{r}
+A <- matrix (1:16 , 4, 4)
+A
+dim(A)
+
+A[2, 3]
+
+A[c(1, 3), c(2, 4)]
+A[1:3, 2:4]
+A[1:2, ]
+
+A[-c(1, 3), ]
+
+A[-c(1, 3), -c(1, 3, 4)]
+```
+
+
+## Loading Data
+
+```{r, eval= F, echo= T}
+Auto <- read.table("Auto.data")
+View(Auto)
+head(Auto)
+
+Auto <- na.omit(Auto)
+
+names(Auto)
+```
+
+
+

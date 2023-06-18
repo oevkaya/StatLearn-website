@@ -95,19 +95,19 @@ methods to extract the information from available data.
 
 ## Type of variables
 
-![](DataTypes.png)
+![](img/DataTypes.png)
 
 Source: http://www.intellspot.com/data-types/
 
 ## Quantitative versus Qualitative
 
-![](QuanDataTypes.jpg)
+![](img/QuanDataTypes.jpg)
 
 Source: https://slideplayer.com/slide/14728003/
 
 ## Supervised versus Unsupervised
 
-![](SuperUnsuperLearn.png)
+![](img/SuperUnsuperLearn.png)
 
 Source: https://www.researchgate.net/publication/319937079_A_Machine_Learning_Framework_for_Sport_Result_Prediction
 
@@ -130,13 +130,13 @@ that can supervise our analysis
 
 ## Supervised versus Unsupervised
 
-![](SuperUnsuper.png)
+![](img/SuperUnsuper.png)
 
 Source: https://www.researchgate.net/publication/329533120_Background_Augmentation_Generative_Adversarial_Networks_BAGANs_Effective_Data_Generation_Based_on_GAN-Augmented_3D_Synthesizing/figures?lo=1
 
 ## Supervised versus Unsupervised
 
-![](SupUnsupMethods.jpg)
+![](img/SupUnsupMethods.jpg)
 
 Source: https://github.com/iammiori/data_analysis_python/issues/1
 
@@ -162,7 +162,7 @@ the response is quantitative or qualitative. Whether the predictors are qualitat
 
 ## Prediction versus Classification
 
-![](PredClass.png)
+![](img/PredClass.png)
 
 Source: Yasin Ceran, Machine Learning Tutorial, Week1-Part 1, Introduction.
 
@@ -206,7 +206,7 @@ Imagine; you are statistical consultants hired by a company to
 investigate the relationship between advertising and sales of a particular
 product. 
 
-![](AdvertExample.png)
+![](img/AdvertExample.png)
 
 Source: FIGURE 2.1 (ISLR book, page 16)
 
@@ -336,7 +336,7 @@ of methods
 
 ## Prediction Accuracy versus Model Interpretability 
 
-![](Figure2.7.png)
+![](img/Figure2.7.png)
 
 Source: FIGURE 2.7 (ISLR book, page 25)
 
@@ -351,9 +351,9 @@ the interpretability of the predictive model is simply not of interest.
 we need to use observations that aren’t used in the training process. 
 Otherwise, the evaluation of the model would be biased. 
 
-![](splitting.png)
+![](img/splitting.png)
 
-![](splittingrule.png)
+![](img/splittingrule.png)
 
 80:20 is a good starting point but we need to make sure that the test set represents most of the variance in the dataset
 
@@ -383,31 +383,31 @@ What is the interpretation ?
 
 ## What else ?
 
-![](modelAcc.png)
+![](img/modelAcc.png)
 
 Source: https://medium.com/acing-ai/how-to-evaluate-regression-models-d183b4f5853d
 
 ## Overfitting versus Underfitting
 
-![](OverUnderfit.png)
+![](img/OverUnderfit.png)
 
 Source: https://andreaprovino.it/bias-variance-tradeoff/
 
 ## Overfitting versus Underfitting
 
-![](ErrorBalance.png)
+![](img/ErrorBalance.png)
 
 Source: https://andreaprovino.it/bias-variance-tradeoff/
 
 ## The bias-variance trade-off
 
-![](OverUnderfitRep.png)
+![](img/OverUnderfitRep.png)
 
 Source: https://medium.com/@toprak.mhmt/the-bias-variance-tradeoff-d9320282ac04
 
 ## The bias-variance trade-off
 
-![](BiasVarTrade.png)
+![](img/BiasVarTrade.png)
 
 Source: https://www.cheatsheets.aqeel-anwar.com
 
@@ -440,13 +440,13 @@ In order to minimize the expected test error, we need to select a statistical le
 
 ## 
 
-![](MSEPattern.png)
+![](img/MSEPattern.png)
 
 Source: FIGURE 2.12 (ISLR book, page 36)
 
 ## Hands on session in R 
 
-![](ModelingFlow.png)
+![](img/ModelingFlow.png)
 
 Source: https://r4ds.had.co.nz/introduction.html
 

@@ -1,5 +1,5 @@
 ---
-title: "Lecture Notes - Week 7"
+title: "Lecture Notes - Week 5"
 author: "Linear Model Selection and Beyond Linearity"
 date: "`r format(Sys.time())`"
 output: 
@@ -206,7 +206,7 @@ best subset for each possible combination of the p predictors. Equivalently, fit
 - The problem of selecting the best model from among the $2^p$ possibilities
 considered by best subset selection is not trivial
 
-![](Algorithm6.1.png)
+![](img/Algorithm6.1.png)
 
 - Step 2 identifies the best model (on the training data)
 for each subset size, in order to reduce the problem from one of $2^p$ possible
@@ -225,7 +225,7 @@ these $p + 1$ options
 
 - in Step 3, we use cross-validated prediction error, $C_p$, $BIC$, or adjusted $R^2$ in order to select among $M_0, M_1, \ldots, M_p$
 
-![](Figure6.1.png)
+![](img/Figure6.1.png)
 
 ## REMARKS
 
@@ -247,7 +247,7 @@ it suffers from computational limitations
 
 ## Illustration
 
-![](Branching.png)
+![](img/Branching.png)
 
 ## Stepwise Selection
 
@@ -286,7 +286,7 @@ improvement to the fit is added to the model
 
 ## Main Scheme
 
-![](Algorithm6.2.png)
+![](img/Algorithm6.2.png)
 
 - In Step (b), we must identify the best model from among those $p−k$ that augment 
 $M_k$ with one additional predictor.
@@ -321,7 +321,7 @@ REMARK: Like forward stepwise selection, backward stepwise selection performs a 
 
 ## Main Scheme
 
-![](Algorithm6.3.png)
+![](img/Algorithm6.3.png)
 
 
 ## Hybrid Approaches
@@ -389,7 +389,7 @@ model size are available;
 
 ## Interpretation 
 
-![](Figure6.2.png)
+![](img/Figure6.2.png)
 
 ## Moving Beyond Linearity
 
@@ -450,7 +450,7 @@ Note that, it is unusual to use d greater than 3 or 4 because for large values o
 
 ## An Example
 
-![](Figure7.1.png)
+![](img/Figure7.1.png)
 
 ## Hands-on Session in R 
 
@@ -498,7 +498,7 @@ up to the best eight-variable model. But the **nvmax** option can be used
 in order to return as many variables as are desired
 
 ```{r}
-regfit.full <- regsubsets(Salary ∼ ., data = Hitters , nvmax = 19)
+regfit.full <- regsubsets(Salary ~ ., data = Hitters , nvmax = 19)
 reg.summary <- summary(regfit.full)
 reg.summary
 ```
@@ -552,10 +552,10 @@ coef(regfit.full , 6)
 ## Forward and Backward Stepwise
 
 ```{r}
-regfit.fwd <- regsubsets(Salary ∼ ., data = Hitters , nvmax = 19, method = "forward")
+regfit.fwd <- regsubsets(Salary ~ ., data = Hitters , nvmax = 19, method = "forward")
 summary(regfit.fwd)
 
-regfit.bwd <- regsubsets(Salary ∼ ., data = Hitters , nvmax = 19, method = "backward")
+regfit.bwd <- regsubsets(Salary ~ ., data = Hitters , nvmax = 19, method = "backward")
 summary(regfit.bwd)
 ```
 

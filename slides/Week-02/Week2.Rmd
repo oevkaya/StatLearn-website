@@ -1,5 +1,5 @@
 ---
-title: "Lecture Notes - Week 3"
+title: "Lecture Notes - Week 2"
 author: "Prediction: Linear Regression"
 date: "`r Sys.Date()`"
 output: 

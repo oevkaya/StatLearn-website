@@ -1,5 +1,5 @@
 ---
-title: "Lecture Notes - Week 6"
+title: "Lecture Notes - Week 4"
 author: "Resampling Methods: Cross Validation and Bootstrap"
 date: "`r Sys.Date()`"
 output: 

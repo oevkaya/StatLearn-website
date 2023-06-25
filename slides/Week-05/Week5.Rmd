@@ -1,0 +1,575 @@
+---
+title: "Lecture Notes - Week 7"
+author: "Linear Model Selection and Beyond Linearity"
+date: "`r format(Sys.time())`"
+output: 
+  slidy_presentation:
+    display: "C" 
+    incremental: true
+---
+
+```{r setup, include=FALSE, fig.height=4, fig.width= 4, fig.align= 'center'}
+knitr::opts_chunk$set(echo = T)
+```
+
+## Recap for Resampling
+
+- Generally, **Resampling methods** involve repeatedly drawing samples from a training set and refitting a model of interest on each sample in order to obtain additional information about the fitted model
+
+- Such an approach may allow us to obtain information that would not be available from fitting the model only once using the original training sample (ie. the variability of a linear regression fit)
+
+- Resampling approaches can be computationally expensive, because they
+involve fitting the same statistical method multiple times using different
+subsets of the training data
+
+- However, due to recent advances in computing power, the computational requirements of resampling methods generally are not prohibitive
+
+- Basically, we will see two commonly used main approaches
+  * cross-validation: when there is insufficient data to create a separate validation or test set
+  * bootstrap: general tool for assessing statistical accuracy !
+  
+## Hands-on session with R
+
+- The Validation Set approach
+
+- Leave-one-out Cross Validation (LOOCV)
+
+- k-fold CV
+
+- Bootstrap 
+
+## Use of caret package for resampling
+
+```{r warning=F, message=F}
+# tidyverse for easy data manipulation and visualization
+# caret for easily computing cross-validation methods
+library(tidyverse)
+library(caret)
+
+# Data example is 
+
+# Load the data
+data("swiss")
+# Inspect the data
+sample_n(swiss, 3)
+```
+
+## The Validation set Approach
+
+The process works as follow:
+
+- Build (train) the model on the training data set
+
+- Apply the model to the test data set to predict the outcome of new unseen observations
+
+- Quantify the prediction error as the mean squared difference between the observed and the predicted outcome values.
+
+```{r}
+# Split the data into training and test set
+set.seed(442)
+training.samples <- swiss$Fertility %>%
+  createDataPartition(p = 0.8, list = FALSE)
+
+train.data  <- swiss[training.samples, ]
+test.data <- swiss[-training.samples, ]
+
+# Build the model, multiple linear regression here
+model <- lm(Fertility ~., data = train.data)
+
+# Make predictions and compute the R2, RMSE and MAE
+predictions <- model %>% predict(test.data)
+data.frame( R2 = R2(predictions, test.data$Fertility),
+            RMSE = RMSE(predictions, test.data$Fertility),
+            MAE = MAE(predictions, test.data$Fertility))
+```
+
+RECALL: Note that, 
+
+- the validation set method is only useful when you have a large data set that can be partitioned. 
+
+- A disadvantage is that we build a model on a fraction of the data set only, possibly leaving out some interesting information about data, leading to higher bias.
+
+- Therefore, the test error rate can be highly variable, depending on which observations are included in the training set and which observations are included in the validation set.
+
+## Leave one out cross validation - LOOCV
+
+This method works as follow:
+
+- Leave out one data point and build the model on the rest of the data set
+
+- Test the model against the data point that is left out at step 1 and record the test error associated with the prediction
+
+- Repeat the process for all data points
+
+- Compute the overall prediction error by taking the average of all these test error estimates recorded at step 2.
+
+```{r}
+# Define training control
+train.control <- trainControl(method = "LOOCV")
+
+# Train the model
+model <- train(Fertility ~., data = swiss, method = "lm",
+               trControl = train.control)
+
+# Summarize the results
+print(model)
+```
+
+- The advantage of the LOOCV method is that we make use all data points reducing potential bias.
+
+- However, the process is repeated as many times as there are data points, resulting to a higher execution time when n is extremely large.
+
+- Additionally, we test the model performance against one data point at each iteration. This might result to higher variation in the prediction error, if some data points are outliers
+
+## K-fold cross-validation
+
+- Randomly split the data set into k-subsets (or k-fold)
+
+- Reserve one subset and train the model on all other subsets
+
+- Test the model on the reserved subset and record the prediction error
+
+- Repeat this process until each of the k subsets has served as the test set.
+
+- Compute the average of the k recorded errors. This is called the cross-validation error serving as the performance metric for the model.
+
+- Typical question, is how to choose right value of k? 
+  * In practice, one typically performs k-fold cross-validation using $k = 5$ or 
+$k = 10$, as these values have been shown empirically to yield test error rate estimates that suffer neither from excessively high bias nor from very high variance. 
+
+```{r}
+# Define training control
+set.seed(123) 
+train.control <- trainControl(method = "cv", number = 10)
+
+# Train the model
+model <- train(Fertility ~., data = swiss, method = "lm",
+               trControl = train.control)
+
+# Summarize the results
+print(model)
+```
+
+- K-fold cross-validation (CV) is a robust method for estimating the accuracy of a model.
+
+- The most obvious advantage of k-fold CV compared to LOOCV is computational. A less obvious but potentially more important advantage of k-fold CV is that it often gives more accurate estimates of the test error rate than does LOOCV (James et al. 2014).
+
+- Lower value of K is more biased and hence undesirable. 
+
+- On the other hand, higher value of K is less biased, but can suffer from large variability. 
+
+- Notice that a smaller value of k (say $k = 2$) always takes us towards validation set approach, whereas a higher value of k (say $k = n$) leads us to LOOCV approach.
+
+## NEW TITLE: Model Selection and Regularization
+
+Why might we want to use another fitting procedure instead of least squares?
+
+- Prediction Accuracy: Provided that the true relationship between the
+response and the predictors is approximately linear, the least squares
+estimates will have low bias. 
+ * If $n ≫ \hat{p}$ is, if n, the number of observations, is much larger than p, the number of variables then the least squares estimates tend to also have low variance, and hence will perform well on test observations. 
+ * However, **if n is not much larger than p**, then there can be a lot of variability in the least squares fit, resulting in overfitting and consequently poor predictions on future observations not used in model training
+ * And if $p > n$, then there is no longer a unique least squares coefficient estimate: the variance is infinite so the method cannot be used at all.
+ * By constraining or shrinking the estimated coefficients, we can often substantially reduce the variance at the cost of a negligible increase in bias
+ 
+- Model Interpretability: It is often the case that some or many of the
+variables used in a multiple regression model are in fact not associated
+with the response
+ * Including such irrelevant variables leads to unnecessary complexity in the resulting model
+ * By removing these variables—that is, by setting the corresponding coefficient estimates to zero—we can obtain a model that is more easily interpreted
+ * Least squares is extremely unlikely to yield any coefficient estimates
+that are exactly zero. 
+
+## What are the Alternatives ?
+
+Three important classes of methods:
+
+- **Subset Selection:** This approach involves identifying a subset of the p
+predictors that we believe to be related to the response. We then fit
+a model using least squares on the reduced set of variables.
+
+- **Shrinkage:** This approach involves fitting a model involving all p predictors.
+However, the estimated coefficients are shrunken towards zero relative to the least squares estimates. This shrinkage (regularization) has the effect of reducing variance and can also perform variable selection.
+
+- **Dimension Reduction:** This approach involves projecting the $p$ predictors
+into an $M$-dimensional subspace, where $M < p$. This is achieved by computing $M$ different linear combinations, or projections, of the variables. Then these $M$ projections are used as predictors to fit a linear regression model by least squares
+
+For today, only subset selection and beyond normality as another kind of alternative
+
+## Subset Selection
+
+These include best subset and stepwise model selection procedures:
+
+- To perform best subset selection, we fit a separate least squares regression
+best subset for each possible combination of the p predictors. Equivalently, fitting $p$ models that contain exactly one predictor, ${p \choose 2} = \frac{p(p-1)}{2}$ models that contain exactly two predictors
+
+- The problem of selecting the best model from among the $2^p$ possibilities
+considered by best subset selection is not trivial
+
+![](Algorithm6.1.png)
+
+- Step 2 identifies the best model (on the training data)
+for each subset size, in order to reduce the problem from one of $2^p$ possible
+models to one of $p + 1$ possible models
+
+- Now in order to select a single best model, we must simply choose among
+these $p + 1$ options
+
+## BE CAREFUL !!!
+
+- This task must be performed with care, because the RSS of these $p + 1$ models decreases monotonically, and the $R^2$ increases monotonically as the number of features included in the models increases
+
+- If we use these statistics to select the best model, then we will always end up with a model involving all of the variables
+
+- The problem is that a low RSS or a high R2 indicates a model with a low training error, whereas we wish to choose a model that has a low test error
+
+- in Step 3, we use cross-validated prediction error, $C_p$, $BIC$, or adjusted $R^2$ in order to select among $M_0, M_1, \ldots, M_p$
+
+![](Figure6.1.png)
+
+## REMARKS
+
+- Although we have presented best subset selection here for least squares
+regression, the same ideas apply to other types of models, such as logistic
+regression. In the case of logistic regression, instead of ordering models by
+RSS in Step 2 of Algorithm 6.1, we instead use the deviance, a measure
+that plays the role of RSS for a broader class of models. The deviance is
+negative two times the maximized log-likelihood; the smaller the deviance,
+the better the fit
+
+- While best subset selection is a simple and conceptually appealing approach,
+it suffers from computational limitations
+
+- Best subset selection becomes computationally infeasible for values of $p$ greater than around 40, even with extremely fast modern computers
+
+- There are computational shortcuts, so called **branch-and-bound techniques** for eliminating some choices, but these have their limitations as $p$ gets large.
+
+
+## Illustration
+
+![](Branching.png)
+
+## Stepwise Selection
+
+- For computational reasons, best subset selection cannot be applied with
+very large $p$. 
+
+- Best subset selection may also suffer from statistical problems when $p$ is large. 
+
+- The larger the search space, the higher the chance of finding
+models that look good on the training data, even though they might not
+have any predictive power on future data. 
+
+- Thus an enormous search space can lead to overfitting and high variance of the coefficient estimates.
+
+Mainly we have,
+
+* Forward Stepwise Selection
+* Backward Stepwise Selection
+* Hybrid Approaches (Forward and Backward jointly)
+
+## Forward Stepwise Selection
+
+- Forward stepwise selection is a computationally efficient alternative to best
+subset selection.
+
+- While the best subset selection procedure considers all
+$2^p$ possible models containing subsets of the $p$ predictors, forward stepwise
+considers a much smaller set of models
+
+- Forward stepwise selection begins with a model containing no predictors, and then adds predictors to the model, one-at-a-time, until all of the predictors are in the model. In particular, at each step the variable that gives the greatest additional
+improvement to the fit is added to the model
+
+- Forward stepwise selection involves fitting one null model, along with $p − k$ models in the $k'th$ iteration, for $k = 0, \ldots, p − 1$ 
+
+- This amounts to a total of $1 + \sum_{k=0}^{p-1} (p-k) = 1 + \frac{p(p+1)}{2}$ models. Imagine the case of $p=20$ ? 
+
+## Main Scheme
+
+![](Algorithm6.2.png)
+
+- In Step (b), we must identify the best model from among those $p−k$ that augment 
+$M_k$ with one additional predictor.
+
+- We can do this by simply choosing the model with the **lowest RSS** or the **highest $R^2$**
+
+- However, in Step 3, we must identify the best model among a set of
+models with different numbers of variables and this is more challenging
+
+- Though forward stepwise tends to do well in practice, it is not guaranteed to find the best possible model out of all $2^p$ models containing subsets of the $p$ predictors
+
+- Forward stepwise selection can be applied even in the high-dimensional
+setting where $n < p$. However, in this case, it is possible to construct submodels
+$M_0, \ldots, M_{n−1}$ only, since each submodel is fit using least squares,
+which will not yield a unique solution if $p \geq n$.
+
+
+## Backward Stepwise Selection
+
+- Like forward stepwise selection, backward stepwise selection provides an efficient alternative to best subset selection
+
+- However, unlike forward stepwise selection, it begins with the full least squares model containing all $p$ predictors, and then iteratively removes the least useful predictor, one-at-a-time.
+
+- Like forward stepwise selection, the backward selection approach searches
+through only $1 + \frac{p(p+1)}{2}$ models, and so can be applied in settings where
+$p$ is too large to apply best subset selection
+
+- Backward selection requires that the number of samples $n >> p$ (so that the full model can be fit). In contrast, forward stepwise can be used even when $n < p$, 
+and so is the only viable subset method when $p$ is very large
+
+REMARK: Like forward stepwise selection, backward stepwise selection performs a guided search over model space, and so effectively considers substantially more than $1 + \frac{p(p+1)}{2}$ models.
+
+## Main Scheme
+
+![](Algorithm6.3.png)
+
+
+## Hybrid Approaches
+
+Not surprisingly, 
+
+- The best subset, forward stepwise, and backward stepwise selection approaches
+generally give similar but not identical models
+
+- As another alternative, hybrid versions of forward and backward stepwise selection are available, in which variables are added to the model sequentially, in analogy
+to forward selection. However, after adding each new variable, the method
+may also remove any variables that no longer provide an improvement in the model fit
+
+- Such an approach attempts to more closely mimic best subset selection while retaining the computational advantages of forward and backward stepwise selection
+
+## Choosing the Optimal Model
+
+- Best subset selection, forward selection, and backward selection result in
+the creation of a set of models, each of which contains a subset of the p
+predictors. 
+
+- To apply these methods, we need a way to determine which of these models is best. 
+
+- As we discussed before, the model containing all of the predictors will always have the smallest $RSS$ and the largest $R^2$, since these quantities are related to the training error. 
+
+- Instead, we wish to choose a model with a low test error. As is evident here, the training error can be a poor estimate of the test error.
+
+- Therefore, $RSS$ and $R^2$ are not suitable for selecting the best model among
+a collection of models with different numbers of predictors
+
+## Two common approaches
+
+1. We can indirectly estimate test error by making an adjustment to the
+training error to account for the bias due to overfitting.
+
+2. We can directly estimate the test error, using either a validation set
+approach or a cross-validation approach
+
+We consider both of these approaches
+
+## Metrics we are using 
+
+STORY: The training set MSE is generally an underestimate of the test $MSE$. This is because when we fit a model to the training data using least squares, we specifically
+estimate the regression coefficients such that the training $RSS$ (but
+not the test $RSS$) is as small as possible. In particular, the training error
+will decrease as more variables are included in the model, but the test error
+may not !
+
+Fortunately, a number of techniques for adjusting the training error for the
+model size are available;
+
+- Mallow's $C_p = \frac{RSS + 2d\widehat{\sigma}^2}{n}$ where $\widehat{\sigma}^2$ is an estimate of the variance of the error $\epsilon$ associated with each response measurement. This is the estimate of test MSE for a fitted least squares model containing $d$ predictors. Typically $\sigma^2$ is estimated using the full model containing all predictors
+
+- if $\widehat{\sigma}^2$ is an unbiased estimate of $\sigma^2$, then $C_p$ is an unbiased estimate of test MSE. Here, the $C_p$ statistic tends to take on a small value for models with a low test error, so when determining which of a set of models is best, we choose the model with the lowest $C_p$ value !
+
+- $AIC = \frac{RSS + 2d\widehat{\sigma}^2}{n}$ is the Akaike information criterion
+
+- $BIC = \frac{RSS + log(n)d\widehat{\sigma}^2}{n}$ is the Bayesian information criterion. 
+
+- Like $C_p$, the $AIC$ and $BIC$ will tend to take on a small value for a model with a low test error, and so generally we select the model that has the lowest AIC / BIC value
+
+- $Adjusted R^2 = 1- \frac{RSS/(n-d-1)}{TSS/(n-1)}$ is the adjusted $R^2$ statistic, as another popular approach for selecting among a set of models that contain different numbers of variables
+
+- A large value of adjusted $R^2$ indicates a model with a small test error. 
+
+## Interpretation 
+
+![](Figure6.2.png)
+
+## Moving Beyond Linearity
+
+- Linear models are relatively simple to describe and implement, and have advantages over other approaches in terms of interpretation and inference. 
+
+- However, standard linear regression can have significant limitations in terms of predictive power. 
+
+- This is because the linearity assumption is almost always an approximation, and sometimes a poor one
+
+- Rather than making the improvement by reducing the complexity of the linear model, we can relax the linearity assumption !
+
+- We do this by examining very simple extensions of linear models like polynomial
+regression and step functions, as well as more sophisticated approaches
+such as splines, local regression, and generalized additive models
+
+## General Summary 
+
+- **Polynomial regression** extends the linear model by adding extra predictors,
+obtained by raising each of the original predictors to a power. This approach provides a simple way to provide a nonlinear fit to data.
+
+- **Step functions** cut the range of a variable into $K$ distinct regions in
+order to produce a qualitative variable. This has the effect of fitting
+a piecewise constant function.
+
+- **Regression splines** are more flexible than polynomials and step functions,
+and in fact are an extension of the two. They involve dividing the range of X into 
+K distinct regions. Within each region, a polynomial function is fit to the data. Provided that the interval is divided into enough regions, this can produce an extremely flexible fit
+
+- **Smoothing splines** are similar to regression splines, but arise in a
+slightly different situation. Smoothing splines result from minimizing
+a residual sum of squares criterion subject to a smoothness penalty.
+
+- **Local regression** is similar to splines, but differs in an important way.
+The regions are allowed to overlap, and indeed they do so in a very
+smooth way.
+ 
+- **Generalized additive models (GAMs)** allow us to extend the methods above to
+deal with multiple predictors.
+
+## Polynomial Regression
+
+The standard way to extend linear regression to settings in
+which the relationship between the predictors and the response is nonlinear
+has been to replace the standard linear model
+
+$y_i = \beta_0 + \beta_1 x_i + \epsilon_i$
+
+by the polynomial function as 
+
+$y_i = \beta_0 + \beta_1 x_i + \beta_2 x_i^2 + \beta_3 x_i^3 + \ldots + \beta_d x_i^d + \epsilon_i$
+
+where $\epsilon_i$ is the error term again. 
+
+This approach is known as polynomial regression and for large enough degree $d$, 
+a polynomial regression allows us to produce an extremely non-linear curve
+
+Note that, it is unusual to use d greater than 3 or 4 because for large values of d, the polynomial curve can become overly flexible and can take on some very strange shapes
+
+## An Example
+
+![](Figure7.1.png)
+
+## Hands-on Session in R 
+
+- Subset Selection 
+
+- Forward stepwise 
+
+- Backward stepwise
+
+## Best subset
+
+Here we apply the best subset selection approach to the Hitters data. We
+wish to predict a baseball player’s Salary on the basis of various statistics
+associated with performance in the previous year
+
+```{r}
+library(ISLR2)
+# View(Hitters)
+names(Hitters)
+dim(Hitters)
+sum(is.na(Hitters$Salary))
+```
+
+
+```{r}
+Hitters <- na.omit(Hitters)
+dim(Hitters)
+sum(is.na(Hitters))
+```
+
+## leaps package
+
+The regsubsets() function (part of the leaps library) performs best subset selection by identifying the best model that contains a given number
+of predictors, where best is quantified using RSS
+
+```{r}
+library(leaps)
+regfit.full <- regsubsets(Salary ~ ., Hitters)
+summary(regfit.full)
+```
+
+For instance, this output indicates that the best two-variable model
+contains only **Hits** and **CRBI**. By default, **regsubsets()** only reports results
+up to the best eight-variable model. But the **nvmax** option can be used
+in order to return as many variables as are desired
+
+```{r}
+regfit.full <- regsubsets(Salary ∼ ., data = Hitters , nvmax = 19)
+reg.summary <- summary(regfit.full)
+reg.summary
+```
+
+
+## Best model 
+
+Plotting $RSS$, adjusted $R^2$, $C_p$, and $BIC$ for all of the models at once will
+help us decide which model to select. Note the type = "l" option tells R to
+connect the plotted points with lines
+
+```{r}
+par(mfrow = c(2, 2))
+plot(reg.summary$rss , xlab = "Number of Variables", ylab = "RSS", type = "l")
+plot(reg.summary$adjr2 , xlab = "Number of Variables", ylab = "Adjusted RSq", type = "l")
+
+# which.max(reg.summary$adjr2)
+points (11, reg.summary$adjr2[11] , col = "red", cex = 2, pch = 20)
+```
+
+In a similar fashion we can plot the Cp and BIC statistics
+
+
+```{r}
+plot(reg.summary$cp, xlab = "Number of Variables", ylab = "Cp", type = "l")
+# which.min(reg.summary$cp)
+points (10, reg.summary$cp[10] , col = "red", cex = 2, pch = 20)
+# which.min(reg.summary$bic)
+plot(reg.summary$bic , xlab = "Number of Variables", ylab = "BIC", type = "l")
+points (6, reg.summary$bic [6], col = "red", cex = 2, pch = 20)
+```
+
+
+The regsubsets() function has a built-in plot() command which can
+be used to display the selected variables for the best model with a given
+number of predictors, ranked according to the $BIC$, $C_p$, adjusted $R^2$, or
+$AIC$
+
+```{r}
+plot(regfit.full , scale = "r2")
+plot(regfit.full , scale = "adjr2")
+plot(regfit.full , scale = "Cp")
+plot(regfit.full , scale = "bic")
+```
+
+```{r}
+reg.summary$bic
+coef(regfit.full , 6)
+```
+
+## Forward and Backward Stepwise
+
+```{r}
+regfit.fwd <- regsubsets(Salary ∼ ., data = Hitters , nvmax = 19, method = "forward")
+summary(regfit.fwd)
+
+regfit.bwd <- regsubsets(Salary ∼ ., data = Hitters , nvmax = 19, method = "backward")
+summary(regfit.bwd)
+```
+
+
+## Comparison 
+
+
+```{r}
+coef(regfit.full, 7)
+
+coef(regfit.fwd, 7)
+
+coef(regfit.bwd, 7)
+```
+
+
+

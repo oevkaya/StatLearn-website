@@ -1,5 +1,5 @@
 ---
-title: "Lecture Notes - Week 10"
+title: "Lecture Notes - Week 8"
 author: "Classification and Regression Trees (CART)"
 date: "`r format(Sys.time())`"
 output: 
@@ -47,18 +47,18 @@ knitr::opts_chunk$set(echo = T)
 
 ## Illustration
 
-![](CARTerm.png)
+![](img/CARTerm.png)
 
 
 ## An Example from Scratch ! (Classification Tree) 
 
-![](StatQuestExample.png){width=50%}
+![](img/StatQuestExample.png){width=50%}
 
 Key: Gini Impurity
 
 ## Finally !
 
-![](StatQuestFinal.png){width=50%}
+![](img/StatQuestFinal.png){width=50%}
 
 For details, please have a look at the recorded videos for Week 8 !!!
 
@@ -76,7 +76,7 @@ that its distribution has more of a typical bell-shape
 
 ## Fitted Regression tree
 
-![](Figure8.1.png)
+![](img/Figure8.1.png)
 
 - The top split assigns observations having Years<4.5 to the left branch
 
@@ -85,7 +85,7 @@ the splits at the midpoint between two adjacent values
 
 ## Splitting Details
 
-![](Figure8.2.png)
+![](img/Figure8.2.png)
 
 Overall, the tree stratifies or segments the players into three regions of predictor space: 
 - players who have played for four or fewer years, 
@@ -236,7 +236,7 @@ to $\alpha$.
 
 ## Main Scheme
 
-![](Algorithm8.1.png)
+![](img/Algorithm8.1.png)
 
 For Hitters Data 
 
@@ -249,11 +249,11 @@ and 131 observations in the test set.
 
 ## Unprunned Tree
 
-![](Figure8.4.png)
+![](img/Figure8.4.png)
 
 ## CV details 
 
-![](Figure8.5.png)
+![](img/Figure8.5.png)
 
 - The CV error is a reasonable approximation of the test error: the CV error takes on its
 minimum for a three-node tree, while the test error also dips down at the
@@ -317,11 +317,11 @@ Since $0 ≤ \hat{p}_{mk} ≤ 1$, it follows that $0 ≤ −\hat{p}_{mk} log(\ha
 
 ## An Example 
 
-![](Figure8.61.png)
+![](img/Figure8.61.png)
 
 ## CV for Pruning
 
-![](Figure8.62.png)
+![](img/Figure8.62.png)
 
 ## Trees Versus Linear Models
 
@@ -348,7 +348,7 @@ Which model is better?
 
 ## Visualization 
 
-![](Figure8.7.png)
+![](img/Figure8.7.png)
 
 ## Hands on session in R
 

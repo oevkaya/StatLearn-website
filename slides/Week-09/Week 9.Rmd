@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ## The Big Picture
 
-![](DimReduc.png){width=75%}
+![](img/DimReduc.png){width=75%}
 
 ## ABC of Unsupervised Learning
 
@@ -84,12 +84,12 @@ Generally, **PCA** is one of the simplest and most robust ways of doing such dim
 
 ## Geometrically Speaking
 
-![](1D.png){width=50%}
+![](img/1D.png){width=50%}
 
-![](2D.png){width=50%}
+![](img/2D.png){width=50%}
 
 
-![](3D.png){width=50%}
+![](img/3D.png){width=50%}
 
 What if we have $5$-dimension or more like $10$ or $100$ dimensions ? 
 
@@ -103,9 +103,9 @@ For further look at the geometry;
 
 ## Consider a simple 3D case (Recall Gene Data)
 
-![](3DExample.png){width=50%}
+![](img/3DExample.png){width=50%}
 
-![](FinalPC_3D.png){width=50%}
+![](img/FinalPC_3D.png){width=50%}
 
 What if you had more than 3 dimensions, say 100 ?
 
@@ -115,7 +115,7 @@ What if you had more than 3 dimensions, say 100 ?
 
 ## Behind the Scenes ? 
 
-![](PCAgif.gif){width=100%}
+![](img/PCAgif.gif){width=100%}
 
 ## Principal Component Analysis (PCA)
 
@@ -256,7 +256,7 @@ for $j = 1, \ldots, i-1$ for ensuring to get uncorrelated PCs.
 
 ## How do we apply PCA ?
 
-![](PCAflowLAST.png){width=60%}
+![](img/PCAflowLAST.png){width=60%}
 
 ## Another Example 
 
@@ -400,7 +400,7 @@ a particular variable denotes the variance of that variable, and the correlation
 
 ## biplot Example
 
-![](Figure3.11.png){width=40%}
+![](img/Figure3.11.png){width=40%}
 Source: The biplot for the heptathlon data omitting the PNG competitor (Everitt, B., and Hothorn, T)
 
 Note that, 
@@ -442,7 +442,7 @@ PCA DISADVANTAGES
 
 ## Cheat Sheet for PCA
 
-![](PCACheat.png){width=50%}
+![](img/PCACheat.png){width=50%}
 
 ## Hands on with R
 
@@ -618,50 +618,6 @@ Further examples in R
 
 - https://www.geo.fu-berlin.de/en/v/soga/Geodata-analysis/Principal-Component-Analysis/principal-components-basics/Interpretation-and-visualization/index.html#:~:text=Interpreting%20Biplots,in%20a%20single%20biplot%20display.&text=The%20plot%20shows%20the%20observations,principal%20components%20(synthetic%20variables).
 
-
-<!-- ## Some notes -->
-
-<!-- As a result, I wanted to put together the “What,” “When,” “How,” and “Why” of PCA as well as links to some of the resources that can help to further explain this topic. Specifically, I want to present the rationale for this method, the math under the hood, some best practices, and potential drawbacks to the method. -->
-
-<!-- You might ask the question, “How do I take all of the variables I’ve collected and focus on only a few of them?” In technical terms, you want to “reduce the dimension of your feature space.” By reducing the dimension of your feature space, you have fewer relationships between variables to consider and you are less likely to overfit your model. -->
-
-<!-- Somewhat unsurprisingly, reducing the dimension of the feature space is called “dimensionality reduction.” There are many ways to achieve dimensionality reduction, but most of these techniques fall into one of two classes: -->
-
-<!-- - Feature Elimination -->
-<!-- - Feature Extraction -->
-
-<!-- By eliminating features, we’ve also entirely eliminated any benefits those dropped variables would bring. Feature extraction, however, doesn’t run into this problem. Say we have ten independent variables. In feature extraction, we create ten “new” independent variables, where each “new” independent variable is a combination of each of the ten “old” independent variables -->
-
-<!-- You might say, “Where does the dimensionality reduction come into play?” Well, we keep as many of the new independent variables as we want, but we drop the “least important ones.” Because we ordered the new variables by how well they predict our dependent variable, we know which variable is the most important and least important. But — and here’s the kicker — because these new independent variables are combinations of our old ones, we’re still keeping the most valuable parts of our old variables, even when we drop one or more of these “new” variables! -->
-
-<!-- Principal component analysis is a technique for feature extraction — so it combines our input variables in a specific way, then we can drop the “least important” variables while still retaining the most valuable parts of all of the variables! As an added benefit, each of the “new” variables after PCA are all independent of one another. This is a benefit because the assumptions of a linear model require our independent variables to be independent of one another. -->
-
-<!-- When should I use PCA? -->
-<!-- 1. Do you want to reduce the number of variables, but aren’t able to identify variables to completely remove from consideration? -->
-<!-- 2. Do you want to ensure your variables are independent of one another? -->
-<!-- 3. Are you comfortable making your independent variables less interpretable? -->
-
-<!-- If you answered “yes” to all three questions, then PCA is a good method to use. If you answered “no” to question 3, you should not use PCA. -->
-
-<!-- This article will explain you what Principal Component Analysis (PCA) is, why we need it and how we use it. I will try to make it as simple as possible while avoiding hard examples or words which can cause a headache. -->
-<!-- A moment of honesty: to fully understand this article, a basic understanding of some linear algebra and statistics is essential. Take a few minutes to review the following topics, if you need to, in order to make it easy to understand PCA: -->
-
-<!-- - vectors -->
-<!-- - eigenvectors -->
-<!-- - eigenvalues -->
-<!-- - variance -->
-<!-- - covariance -->
-
-
-<!-- - Standardize the data (Center and scale). -->
-
-<!-- - Calculate the Eigenvectors and Eigenvalues from the covariance matrix or correlation matrix (One could also use Singular Vector Decomposition). -->
-
-<!-- - Sort the Eigenvalues in descending order and choose the K largest Eigenvectors (Where K is the desired number of dimensions of the new feature subspace k ≤ d). -->
-
-<!-- - Construct the projection matrix W from the selected K Eigenvectors. -->
-
-<!-- - Transform the original dataset X via W to obtain a K-dimensional feature subspace Y. -->
 
 
 

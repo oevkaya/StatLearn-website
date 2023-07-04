@@ -62,7 +62,7 @@ such as; regularization, in terms of prediction accuracy
 
 ## General Overview
 
-![](TreesOverview.jpeg)
+![](img/TreesOverview.jpeg)
 
 Source: https://gunjanagicha.medium.com/tree-based-methods-7ed6ff5db85d
 
@@ -80,13 +80,13 @@ Source: https://data-flair.training/blogs/r-decision-trees/
 
 ## OK, What is a Decision Tree ? 
 
-![](DecTrees.png)
+![](img/DecTrees.png)
 
 - In essence, our tree is a set of rules that allows us to make predictions by asking simple yes-or-no questions about each feature
 
 ## A numerical One
 
-![](Figure8.1.png)
+![](img/Figure8.1.png)
 
 ## Model Basics
 
@@ -146,11 +146,11 @@ Source: https://slcladal.github.io/tree.html
 
 ## Terminology
 
-![](CARTerm.png)
+![](img/CARTerm.png)
 
 ## Partitioning
 
-![](TreePartition.png)
+![](img/TreePartition.png)
 
 - As illustrated above, CART uses binary recursive partitioning (it’s recursive because each split or rule depends on the the splits above it)
 
@@ -185,13 +185,13 @@ For details of both approaches please have a look at the source available here (
 
 ## An Example from Scratch ! (Classification Tree) 
 
-![](StatQuestExample.png){width=50%}
+![](img/StatQuestExample.png){width=50%}
 
 Key: Gini Impurity
 
 ## Finally !
 
-![](StatQuestFinal.png){width=50%}
+![](img/StatQuestFinal.png){width=50%}
 
 ## Beyond CART, what we have? 
 
@@ -259,7 +259,7 @@ data set using the bootstrap, fitting a separate decision tree to each copy, and
 
 ## Main Algorithm
 
-![](Algorithm8.2.png)
+![](img/Algorithm8.2.png)
 
 ## Important Remarks
 

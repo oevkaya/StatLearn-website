@@ -1,0 +1,95 @@
+---
+title: "ADA 442: Statistical Learning"
+subtitle: "Homework 2: Comparison of different linear models"
+author: "<WRITE YOUR NAME (YOUR NUMBER)>"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  pdf_document:
+    fig_width: 6 
+    fig_height: 4 
+    number_sections: yes
+    toc: yes
+---
+
+```{r setup, include=FALSE, echo=F, warning=F, message=F}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## ABOUT REPRODUCIBILITY
+
+```{r}
+# FOR REPRODUCIBILITY
+set.seed(442)
+# ALERT: YOU NEED TO USE YOUR STUDENT NUMBER LAST 5 DIGITS 
+# HERE instead of 442 MAKE SURE THAT YOU CHANGED 
+# BEFORE STARTING TO YOUR ANALYSIS
+
+# THIS PART IS IMPORTANT FOR SPLITTING YOUR DATA so that 
+# EACH PERSON HAS DIFFERENT SPLITS AND EVEN IF YOU USE 
+# THE SAME DATA SET YOUR RESULTS WILL BE A BIT DIFFERENT
+
+# ALWAYS USE 80% (TRAINING) - 20% (TESTING) SPLIT RULE in YOUR ANALYSIS
+
+# BUT MOST IMPORTANTLY WHEN I RUN YOUR .Rmd file in my computer, 
+# I NEED TO SEE THE SAME RESULTS THAT YOU MENTIONED IN YOUR PDF REPORT !
+```
+
+## HOMEWORK 2
+
+You should aim to use this section to run different linear models including Ridge and Lasso in `R` and interpret the corresponding output. You will need to conduct such analyses on the available data set below (HINT: Try to focus on fitting a model to explain **Accept** variable (Number of applications accepted))
+
+```{r}
+# install.packages("ISLR2")
+library(ISLR2)
+data("College")
+# First insight
+# head(College)
+summary(College) # Ranges of predictors are different !!!
+
+# About the response distribution !!!
+hist(College$Accept)
+```
+
+1. Consider any necessary **data-preprocessing process** on the data set (**HINT:** Ranges of predictors are different and the response variable should be approximately normal !!!)
+
+2. Fit a **multiple linear regression model** after partitioning your data set into training and testing 
+(you can apply 80-20 % rule). After fitting the model, **make predictions on testing data** and compare 
+with the original observations. 
+
+3. Using the `plot` command, comment on the **validity of the assumption of the model** that you fit in Question 2 (Note before using the `plot` command you may wish to specify a 2x2 graphics window using `par(mfrow = c(2, 2))`).
+
+4. Consider **the subset selection** idea to understand which of the variables are selected mostly when you implement; **i) best subset**, **ii) forward stepwise** and **iii) backward stepwise** algorithms. Try to figure out **optimal numbers in each selection algorithm**, by considering the **minimum BIC** performance metric! 
+
+5. Fit a **ridge regression** model on the training set by **using the all predictors**, with $\lambda$ parameter chosen by **cross-validation** beforehand. After building the model, report the test error obtained.
+
+6. Fit a **LASSO regression** model on the training set by **using the all predictors**, with $\lambda$ parameter chosen by **cross-validation** beforehand. After building the model, report the test error obtained.
+
+7. Comment on the above obtained results. How accurately can we predict the number of college applications received (Accept variable)? In terms of test error calculations you derived, is there much difference among the above-considered linear models ? **Which one is more preferable** ? 
+
+\newpage
+## SOLUTIONS
+
+- MAKE SURE THAT ALL NECESSARY PACKAGES ARE ALREADY INSTALLED and READY TO USE 
+
+- You can use as many as Rcode chunks you want. In the final output, both Rcodes and your ouputs including your comments should appear in an order
+
+- Use the given R-code chunk below to make your calculations and summarize your result thereafter by adding comments on it, 
+
+```{r}
+# Data preprocessing
+
+# Data partitioning
+
+# etc.
+
+```
+
+## References 
+
+Give a list of the available sources that you used while preparing your home-work
+(If you use other resources, you can make a list here for checking & reproducibility). 
+
+For instance; 
+
+- https://www.statlearning.com/
+

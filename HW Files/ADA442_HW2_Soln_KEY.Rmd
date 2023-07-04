@@ -1,0 +1,421 @@
+---
+title: "ADA 442: Statistical Learning"
+subtitle: "Homework 2: Comparison of different linear models"
+author: "<WRITE YOUR NAME (YOUR NUMBER)>"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  pdf_document:
+    fig_width: 6 
+    fig_height: 4 
+    number_sections: yes
+    toc: yes
+---
+
+```{r setup, include=FALSE, echo=F, warning=F, message=F}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## ABOUT REPRODUCIBILITY
+
+```{r}
+# FOR REPRODUCIBILITY
+set.seed(442)
+# ALERT: YOU NEED TO USE YOUR STUDENT NUMBER LAST 5 DIGITS 
+# HERE instead of 442 MAKE SURE THAT YOU CHANGED 
+# BEFORE STARTING TO YOUR ANALYSIS
+
+# THIS PART IS IMPORTANT FOR SPLITTING YOUR DATA so that 
+# EACH PERSON HAS DIFFERENT SPLITS AND EVEN IF YOU USE 
+# THE SAME DATA SET YOUR RESULTS WILL BE A BIT DIFFERENT
+
+# ALWAYS USE 80% (TRAINING) - 20% (TESTING) SPLIT RULE in YOUR ANALYSIS
+
+# BUT MOST IMPORTANTLY WHEN I RUN YOUR .Rmd file in my computer, 
+# I NEED TO SEE THE SAME RESULTS THAT YOU MENTIONED IN YOUR PDF REPORT !
+```
+
+## HOMEWORK 2
+
+You should aim to use this section to run different linear models including Ridge and Lasso in `R` and interpret the corresponding output. You will need to conduct such analyses on the available data set below (HINT: Try to focus on fitting a model to explain **Accept** variable (Number of applications accepted))
+
+```{r}
+# install.packages("ISLR2")
+library(ISLR2)
+data("College")
+# First insight
+# head(College)
+# summary(College) # Ranges of predictors are different !!!
+
+# About the response distribution !!!
+hist(College$Accept)
+```
+
+1. Consider any necessary **data-preprocessing process** on the data set (**HINT:** Ranges of predictors are different and the response variable should be approximately normal !!!)
+
+2. Fit a **multiple linear regression model** after partitioning your data set into training and testing 
+(you can apply 80-20 % rule). After fitting the model, **make predictions on testing data** and compare 
+with the original observations. 
+
+3. Using the `plot` command, comment on the **validity of the assumption of the model** that you fit in Question 2 (Note before using the `plot` command you may wish to specify a 2x2 graphics window using `par(mfrow = c(2, 2))`).
+
+4. Consider **the subset selection** idea to understand which of the variables are selected mostly when you implement; **i) best subset**, **ii) forward stepwise** and **iii) backward stepwise** algorithms. Try to figure out **optimal numbers in each selection algorithm**, by considering the **minimum BIC** performance metric! 
+5. Fit a **ridge regression** model on the training set by **using the all predictors**, with $\lambda$ parameter chosen by **cross-validation** beforehand. After building the model, report the test error obtained.
+
+6. Fit a **LASSO regression** model on the training set by **using the all predictors**, with $\lambda$ parameter chosen by **cross-validation** beforehand. After building the model, report the test error obtained.
+
+7. Comment on the above obtained results. How accurately can we predict the number of college applications received (Accept variable)? In terms of test error calculations you derived, is there much difference among the above-considered linear models ? **Which one is more preferable** ? 
+
+\newpage
+## SOLUTIONS
+
+## 1. Data Pre-processing
+
+```{r}
+# Data preprocessing for response and predictors
+# To make the response almost normal 
+
+College$Accept <- log(College$Accept)
+
+hist(College$Accept)
+
+# Also the range of each predictor is really different 
+# so apply a suitable scaling on them 
+
+# colnames(College)
+College_pred_num <- subset(College, select = -c(Accept, Private) )
+
+# Follow the standardization
+
+# creating Standardization function
+# YOU CAN USE ANY OTHER OPTION HERE
+standardize = function(x){
+  z <- (x - mean(x)) / sd(x)
+  return(z)
+}
+
+# apply your function to the dataset
+College_pred_num <- apply(College_pred_num, 2, standardize)
+
+summary(College_pred_num)
+
+```
+
+Merge the all pre-processed data here
+
+```{r}
+attach(College)
+College_new <- data.frame(Private, College_pred_num, Accept)
+detach(College)
+
+str(College_new)
+```
+
+
+## 2. Splitting the data
+
+```{r}
+# Data partitioning
+# %80 for training, %20 for testing
+sample.size <- floor(0.80 * nrow(College_new)) 
+
+train.index <- sample(seq_len(nrow(College_new)), size = sample.size)
+
+# Partitioning on training and testing
+train <- College_new[train.index, ]
+test <- College_new[-train.index, ]
+
+# Insight on partitioned data 
+head(train); head(test)
+
+```
+
+Fit a multiple linear regression on the training data set that we created
+
+```{r}
+College_mlr <- lm(Accept ~ ., data = train)
+summary(College_mlr)
+```
+
+When we use the all predictors including one categorical one in the data set, there are some insignificant coefficient estimates based on the p -values. So there should be some predictor selection at a later stage. Still, one can make a prediction on the fitted model over the test data set
+
+```{r}
+# PREDICTION : Use the testing data
+predict_College_mlr <- predict(College_mlr, newdata = test)
+# Some observations to compare
+head(cbind(predict_College_mlr, test$Accept))
+
+# Performance metrics on the predictions
+library(tidyverse)
+library(modelr)
+
+# For simple linear regression
+perf_mlr <- data.frame(
+  R2 = rsquare(College_mlr, data = test),
+  MSE = mse(College_mlr, data = test), 
+  RMSE = rmse(College_mlr, data = test),
+  MAE = mae(College_mlr, data = test)
+)
+perf_mlr
+```
+
+In terms of the Rsquared value, the performance on test data is reasonable. 
+
+## 3. For model diagnostics,
+
+```{r}
+par(mfrow = c(2, 2))
+plot(College_mlr)
+```
+
+There appears a clear systematic pattern in the left hand plots which would suggest that the
+assumption of linearity (Residual vs Fitted) and constant variance (Residual vs Fitted and Scale-Location
+plot) are not valid. The Q-Q plot
+appears to be fairly linear excluding the lower tail so there are some observations far from the diagonal line (ie. possible outliers). Besides, there seems to be some high leverage point in the data set that affects the model performance. Overall, the fitted multiple linear regression should be revised by fixing these problems mainly
+
+## 4. For subset selection
+
+We have different options starting with i) best subset, ii) forward and iii) backward. Consider each of them one by one :
+
+```{r}
+# Consider leaps package for subset selection 
+# install.packages("leaps)
+library(leaps)
+
+# Best subset with pre-defined number of fixed predictors, nvmax can be changed
+regfit.full <- regsubsets(Accept ~ ., data = train, nvmax = 10)
+
+#regfit.full
+reg.summary <- summary(regfit.full)
+reg.summary
+```
+
+One can easily visualize which of the predictors are considered in the linear model for different number of predictors. Such as for $p=3$, Apps, Enrol and PhD variables are selected by the algorithm here
+
+```{r}
+# Try to figure out optimal numbers in best subset selection 
+which.min(reg.summary$rss)
+which.max(reg.summary$adjr2)
+which.min(reg.summary$cp)
+which.min(reg.summary$bic)
+```
+
+Generally, when we stick to the bic value, 8 observations are suggested here to consider in the model
+
+```{r}
+# Stick to the smallest one for interpretation by BIC value 
+plot(regfit.full, scale = "bic")
+```
+
+Look at the other algorithms and try to make a decision on variable selection
+
+```{r}
+# Forward selections
+regfit.forw <- regsubsets(Accept ~ ., data = train, nvmax = 10, 
+                          method = "forward")
+#regfit.full
+reg.summary_forw <- summary(regfit.forw)
+reg.summary_forw
+
+which.min(reg.summary_forw$bic)
+plot(reg.summary_forw$bic , xlab = "Number of Variables", ylab = "BIC", type = "l")
+points(which.min(reg.summary_forw$bic), reg.summary_forw$bic[which.min(reg.summary_forw$bic)], 
+       col = "red", cex = 2, pch = 20)
+plot(regfit.forw , scale = "bic")
+
+```
+
+
+```{r}
+# Backward selections
+regfit.back <- regsubsets(Accept ~ ., data = train, nvmax = 10, 
+                          method = "backward")
+#regfit.full
+reg.summary_back <- summary(regfit.back )
+reg.summary_back
+
+which.min(reg.summary_back$bic)
+plot(reg.summary_back$bic , xlab = "Number of Variables", ylab = "BIC", type = "l")
+points(which.min(reg.summary_back$bic), reg.summary_back$bic[which.min(reg.summary_back$bic)], 
+       col = "red", cex = 2, pch = 20)
+plot(regfit.back, scale = "bic")
+```
+
+Here forward and backward methods suggest `r which.min(reg.summary_back$bic)` predictors based on the minimum value of BIC. To see the selection of variables
+
+```{r}
+# Compare those subset selections to see which variables more useful
+# Basic comparison with 6 predictors
+
+coef(regfit.full, which.min(reg.summary$bic))
+
+coef(regfit.forw, which.min(reg.summary_forw$bic))
+
+coef(regfit.back, which.min(reg.summary_back$bic))
+```
+For the all selection methods, the selected predictors are the same. For a new MLR setting, this selection can be examined to check whether or not there is any kind of model improvement here 
+
+```{r}
+# MLR with the selected predictors 
+College_mlr_sel <- lm(Accept ~ Private + Apps + Enroll + Outstate + PhD + S.F.Ratio + Books + Grad.Rate, data = train)
+summary(College_mlr_sel)
+
+# For simple linear regression
+perf_mlr_sel <- data.frame(
+  R2 = rsquare(College_mlr_sel, data = test),
+  MSE = mse(College_mlr_sel, data = test), 
+  RMSE = rmse(College_mlr_sel, data = test),
+  MAE = mae(College_mlr_sel, data = test)
+)
+perf_mlr_sel
+```
+
+Not so much difference indeed!
+
+## 5. Fitting the Ridge regression 
+
+Again with all predictors
+
+```{r}
+# Creating model matrix first 
+x_matrix <- model.matrix(Accept ~ ., train)[, -1]
+y <- train$Accept
+
+```
+
+Using the model matrix and glmnet package functionalities
+
+```{r}
+library(glmnet)
+# Search for different lambda values
+grid <- 10^seq(10, -2, length = 100)
+
+ridge.mod <- glmnet(x_matrix, y, alpha = 0, lambda = grid)
+
+plot(ridge.mod)
+summary(ridge.mod)
+```
+
+To determine the best lambda value (it can be changed how you defined set.seed before)
+
+```{r}
+# CV on Ridge
+cv.out <- cv.glmnet(x_matrix, y, alpha = 0)
+plot(cv.out)
+bestlam <- cv.out$lambda.min
+bestlam
+```
+
+For the model evaluation part with the best lambda value 
+
+```{r}
+# Apply again with the best lambda value 
+x_test <- model.matrix(Accept ~ ., test)[, -1]
+
+# To predict
+ridge.pred <- predict(ridge.mod, s = bestlam, newx = x_test)
+
+# To compare with the true values and MSE
+mean((ridge.pred - test$Accept)^2)
+
+
+# For more measures use the following function
+
+eval_results <- function(true, predicted, df) {
+  SSE <- sum((predicted - true)^2)
+  SST <- sum((true - mean(true))^2)
+  R_square <- 1 - SSE / SST
+  MSE <- SSE/nrow(df)
+  RMSE = sqrt(SSE/nrow(df))
+  MAE = sum(abs(predicted - true))/nrow(df)
+  
+  
+  # Model performance metrics
+  data.frame(
+    R2 = R_square,
+    MSE = MSE,
+    RMSE = RMSE,
+    MAE = MAE
+  )
+  
+}
+```
+```{r}
+# Prediction and evaluation on test data
+predictions_test <- predict(ridge.mod, s = bestlam, newx = x_test)
+perf_ridge <- eval_results(test$Accept, predictions_test, test)
+perf_ridge
+```
+
+## 6. Fitting the LASSO regression 
+
+Again with all predictors
+
+```{r}
+# In a similar manner consider the Lasso model with the same flow
+# Search for different lambda values similarly
+# grid <- 10^seq(10, -2, length = 100)
+
+lasso.mod <- glmnet(x_matrix, y, alpha = 1, lambda = grid)
+
+plot(lasso.mod)
+summary(lasso.mod)
+```
+
+To determine the best lambda value 
+
+```{r}
+# CV on LASSO
+cv.out.lasso <- cv.glmnet(x_matrix, y, alpha = 1)
+plot(cv.out.lasso)
+bestlam.lasso <- cv.out.lasso$lambda.min
+bestlam.lasso
+```
+
+For the model evaluation part with the best lambda value 
+
+```{r}
+# Apply again with the best lambda value 
+# x_test <- model.matrix(Accept ~ ., test)[, -1]
+
+# To predict
+lasso.pred <- predict(lasso.mod, s = bestlam.lasso, newx = x_test)
+
+# To compare with the true values and MSE
+mean((lasso.pred - test$Accept)^2)
+
+```
+
+```{r}
+# Prediction and evaluation on test data
+predictions_test.lasso <- predict(lasso.mod, s = bestlam.lasso, newx = x_test)
+perf_lasso <- eval_results(test$Accept, predictions_test.lasso, test)
+perf_lasso
+```
+
+As a first insight, ridge seems to be better than the lasso but we need the overall comparison below
+
+## 7. For overall comparison 
+
+Over the test data, just focus on the metrics that we calculated 
+
+```{r}
+# NOT a WELL WRITTEN cODE !
+# For MLR with all predictors
+perf_mlr
+# For ridge
+perf_ridge
+# For lasso
+perf_lasso
+```
+
+Here, these three models have some pros and cons based on the selected indicator above. Overall, the performance on the testing data quite similar to each other. On the other hand, the mlr with all predictors require more examine since some of the predictors are not significant etc. So maybe after the selection of predictors, ridge and lasso can be considered together to see is there any improvement or not !
+
+## References 
+
+Give a list of the available sources that you used while preparing your home-work
+(If you use other resources, you can make a list here for checking & reproducibility). 
+
+For instance; 
+
+- https://www.statlearning.com/
+

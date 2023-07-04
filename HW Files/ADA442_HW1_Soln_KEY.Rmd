@@ -1,0 +1,340 @@
+---
+title: "Homework 1: Simple Linear Regression an Logistic Regression"
+author: "<WRITE YOUR NAME (YOUR NUMBER)>"
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output: html_document 
+---
+
+
+```{r setup, include=FALSE, echo=F, warning=F, message=F}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Part 1: Simple Linear Regression
+
+Exam grades and weekly spent time on self study $x$ (in hours) of 14 statistics students are given in the following table. 
+
+| Self study | 25.0 | 26.2 | 24.9 | 23.7 | 22.8 | 24.6 | 23.6 | 23.0 | 22.5 | 26.2 | 25.8 | 24.0 | 22.1 | 21.7 |
+|---------------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|
+| Exam Grades      |   63 |   53 |   52 |   46 |   34 |   47 |   43 |   37 |   40 |   45 |   53 |   42 |   32 |   49 |
+
+
+1. Create a data frame in `R` with the above data. Plot the data with the weekly spent time on self study in the $x$-axis and exam grades on the $y$-axis (You should include labels for your axes and a title for the plot)
+
+2. Obtain the least squares regression line of exam grades on weekly spent time on self study. Interpret your model result (Using the whole data set)
+
+3. Fit the linear model after partitioning your data set into training and testing (round the number of observations when it is necessary). After fitting the model, compare your parameter estimates with the model result in Question 2. Then, make predictions on testing data and compare with the original observations. 
+
+4. Using the `plot` command, comment on the validity of the assumption of the model that you fit in Question 3 (Note before using the `plot` command you may wish to specify a 2x2 graphics window using `par(mfrow = c(2, 2))`).
+
+5. Calculate a $95\%$ confidence interval for the slope regression parameter for the last model you fit in Question 3. (Note that the number of degrees of freedom should be obtained from the `R` output). For this you can use a built-in function in R
+
+\newpage 
+
+# Part 1: Solution
+
+```{r}
+# FOR REPRODUCIBILITY
+set.seed(442)
+# ALERT: YOU NEED TO USE YOUR STUDENT NUMBER LAST 5 DIGITS 
+# HERE instead of 442 MAKE SURE THAT YOU CHANGED 
+# BEFORE STARTING TO YOUR ANALYSIS
+
+```
+
+## 1. Reading and Plotting the data 
+
+```{r}
+# Read the data set 
+exam <- data.frame(
+StudyHours = c(25.0, 26.2, 24.9, 23.7, 22.8, 24.6, 23.6,
+23.0, 22.5, 26.2, 25.8, 24.0, 22.1, 21.7),
+Grades = c(63, 53, 52, 46, 34, 47, 43, 37, 40, 45, 53, 42, 32, 49)
+)
+
+```
+
+```{r}
+# Scatter plot 
+plot(exam$StudyHours, exam$Grades, xlab="Study Hours",
+ylab="Grades", main = "Data from 14 Students")
+```
+
+## 2. Fitting the linear regression 
+
+By using the whole data 
+
+```{r}
+output1_lm <- lm(Grades ~ StudyHours, data = exam)
+summary(output1_lm)
+
+```
+Here, the output suggest that the intercept is not significantly different 
+from 0. Fit the linear model without an intercept term might be an alternative
+
+```{r}
+output2_lm <- lm(Grades ~ -1 + StudyHours, data = exam)
+summary(output2_lm)
+```
+
+Now, after dropping the insignificant intercept term, the obtained model seems more reasonable, in terms of the adjusted R-squared value over the training observations !
+
+## 3. First data partitioning
+
+Now first splitting the data set into training and testing before model fitting 
+
+```{r}
+sample.size <- floor(0.80 * nrow(exam)) # %80 for training, %20 for testing
+train.index <- sample(seq_len(nrow(exam)), size = sample.size)
+
+# Partitioning on training and testing
+train <- exam[train.index, ]
+test <- exam[-train.index, ]
+
+# Insight on partitioned data 
+head(train); head(test)
+```
+
+Fit the lm model only on the training observations now 
+
+```{r}
+output3_lm <- lm(Grades ~ -1 + StudyHours, data = train)
+summary(output3_lm)
+```
+
+Again we got significant slope term and higher R-squared value. Based on the small sample data set, we used almost all the observations and keep a few observations for testing. Now, we can make some predictions on the fitted model and compare with the test data
+
+```{r}
+# PREDICTION : Use the testing data
+predict_exam <- predict(output3_lm, newdata = test)
+cbind(predict_exam, test$Grades)
+
+```
+
+Above code chunk summarizes the basic comparison on the predicted and observed values of the grade here. It might be a good further exercise to calculate measures such as MSE using this small data set!
+
+## 4. Plotting the model diagnostics for last fit 
+
+```{r}
+par(mfrow = c(2, 2))
+plot(output3_lm)
+```
+
+There does not appear to be any clear systematic pattern in the left hand plots which would suggest that the
+assumption of linearity (Residual vs Fitted) and constant variance (Residual vs Fitted and Scale-Location
+plot) are almost valid. (We do possibly observe a slight increasing trend in the Residual vs Fitted plot but the
+number of data points is small and so it is difficult to really make any conclusive statement). The Q-Q plot
+appears to be fairly linear, and the assumption of normality appears to be valid.
+
+## 5. Confidence Interval (CI)
+
+For CI of the fitted values on the model fitted in Q3
+
+```{r}
+# Confidence interval for the fitted model parameters
+# For %95 CI for the study hours 
+CI95 <- confint(output3_lm)
+CI95
+```
+
+This explains you can be 95% confident that the true slope parameter is between `r CI95`. Or you can apply the definition of it by considering the necessary outputs manually, 
+
+\newpage
+
+# Part 2: Logistic Regression
+
+Consider the available example data set below
+
+```{r}
+# install.packages("mlbench")
+library(mlbench)
+data(BreastCancer)
+#summary(BreastCancer)
+
+# You can check the details here
+# https://www.rdocumentation.org/packages/mlbench/versions/2.1-3/topics/BreastCancer
+```
+
+1. Convert your Class variable into a numerical one since you have two classes (benign malignant) you can make it one of them as 0 and the other one is 1
+
+2. Fit a logistic regression model to classify **Class** using Mitoses (DO NOT FORGET TO PARTITION YOUR DATA INTO TRAINING AND TESTING DATA SETS, DO NOT FORGET THAT THIS DATA SET INCLUDES QUALITATIVE PREDICTORS !)
+
+3. Make predictions and compare with the true observations (using TEST DATA SET). Calculate and intepret the Confusion Matrix results
+
+4. Fit a multiple logistic regression to classify **Class** by using more than one predictor
+
+5. Compare simple logistic and multiple logistic regression models using F1-score to make a decision on the best model. Why the overall accuracy is not enough as a performance measure ? Explain shortly
+
+\newpage
+
+# Part 2: Solution
+
+About Data insight
+
+```{r}
+# install.packages("mlbench")
+library(mlbench)
+data(BreastCancer)
+# You can check the details here
+# https://www.rdocumentation.org/packages/mlbench/versions/2.1-3/topics/BreastCancer
+
+summary(BreastCancer)
+dim(BreastCancer)
+```
+
+## 1. Making the mentioned conversion 
+
+For class variable after dropping the NA values from Bare.nuclei 
+
+```{r}
+# Remove some NA values because of Bare.nuclei
+dataframe <- BreastCancer[!is.na(BreastCancer$Bare.nuclei), ]
+dataframe <- dataframe[, 2:length(colnames(dataframe))]
+
+# Converting Class variable into a numerical one
+# If it is benign, then 1, for malignant it is 0. 
+# Opposite direction is valid as well
+dataframe$Class <- ifelse(dataframe$Class == "benign", 1, 0)
+head(dataframe)
+
+```
+
+## 2. Making the necessary split 
+
+Fit a logistic regression over the splitted data  
+
+```{r}
+training_index <- sample(nrow(dataframe), 0.8 * nrow(dataframe))
+# length(training_index)
+training <- dataframe[training_index,]
+dim(training)
+
+testing <- dataframe[-training_index,]
+dim(testing)
+```
+
+Fitting based on the Mitosis only 
+
+```{r}
+class(dataframe$Mitoses)
+unique(dataframe$Mitoses)
+# It is a factor variable with 9 different levels
+```
+
+
+```{r}
+# Since we have binary response here family is selected as below within glm
+glm_mitosis <- glm(Class ~ Mitoses, data = training, family = binomial)
+summary(glm_mitosis)
+```
+
+When the logistic regression fit is considered only using Mitoses and since the predictor is categorical we observed some significant and insignificant results above. Based on the calculated p-value, some Mitoses types seem not significant in terms of the trained model (It can be changed based on different set.seed). Note that the base is selected in terms of Mitoses type 1, it is not readable in the above output 
+
+## 3. Consider the predictions based on the model and compare with the true observations
+
+```{r}
+pred_mitosis <- predict(glm_mitosis, newdata = testing, 
+                         type = "response")
+head(pred_mitosis)
+# Convert the values into binary response based on the threshold values
+pred_mitosis <- ifelse(pred_mitosis >= 0.5, 1, 0)
+head(pred_mitosis)
+```
+
+Comparison with the true observations
+
+```{r}
+calc_class_err <- function(actual, predicted) {
+mean(actual != predicted)}
+
+calc_class_err(actual = testing$Class, predicted = pred_mitosis)
+```
+
+This is the miss-classification error rate on the testing data set 
+
+```{r}
+# Simple creation for the Confusion matrix
+test_score_table_mitoses <- table(actual = testing$Class,
+prediction = pred_mitosis)
+test_score_table_mitoses
+```
+
+There are some miss-classified observations (`r test_score_table_mitoses[1,2]` observations are 0 but the model classified it as 1, on the other side, `r test_score_table_mitoses[2,1]` observations are class 1 but the model results in class 0). More comprehensive calculations can be generated via the caret package functionality (confusionMatrix) 
+
+```{r, warning=F, message=F}
+library(caret)
+# library(ggplot2)
+library(lattice)
+
+pred_mitosis_factor <- factor(pred_mitosis)
+
+y_true <- factor(testing$Class)
+
+conf_mitosis <- confusionMatrix(data = y_true, reference = pred_mitosis_factor)
+
+print(conf_mitosis)
+
+```
+
+The model accuracy is reasonable. Other measures such as Sensitivity and Specificty is still high for the trained model roughly speaking
+
+## 4. Consider various predictors now, 
+
+Not only the mitoses. For the simplicity, we tried to use some of them (selection can be made in a different way, here they are chosen arbitrarily for the illustration only)  
+
+```{r}
+glm_multiple <- glm(Class ~ Mitoses + Bl.cromatin + Bare.nuclei, 
+                    data = training, family = binomial)
+summary(glm_multiple)
+```
+
+Now, based on the selected predictors, there are various insignificant cases. But still, based on the fitted model, new predictions can be obtained
+
+```{r}
+pred_multiple <- predict(glm_multiple, newdata = testing, type = "response")
+
+pred_multiple <- ifelse(pred_multiple >= 0.5, 1, 0)
+calc_class_err(actual = testing$Class, predicted = pred_multiple)
+```
+
+When three predictors are used together, error rate is found to be slower compared to the univariate cases.
+Generally, we see that considered three independent variables might increase the performance of the logistic regression.
+
+## 5. It is possible to look at in detail, 
+
+```{r}
+pred_multiple_factor <- factor(pred_multiple)
+
+y_true <- factor(testing$Class)
+
+conf_mitosis <- confusionMatrix(data = y_true, reference = pred_multiple_factor)
+
+print(conf_mitosis)
+
+```
+
+The accuracy is now higher compared to the logistic regression with one predictor above. To look at the F1 score comparatively
+
+```{r}
+# For the first logistic model 
+conf_mitosis <- confusionMatrix(data = y_true, reference = pred_mitosis_factor, 
+                                mode = "everything")
+
+conf_mitosis$byClass["F1"]
+
+conf_mitosis <- confusionMatrix(data = y_true, reference = pred_multiple_factor, 
+                                mode = "everything")
+
+conf_mitosis$byClass["F1"]
+```
+
+Now, when we increased the considered predictor numbers, there is an increasing pattern on the F1 score values as well. So one can simply say that there is a significant improvement when we look at the performance on testing (Side Note: Other necessary steps are assumed to be completed first and the models are compared. This is a rough comparison and might require some predictor selection etc. to make it more reasonable since we have still some insignificant predictors in the glm_multiple output)
+
+# References 
+
+Give a list of the available sources that you use while preparing your home-work
+(If you use other resources, you can make a list here for checking & reproducibility). 
+
+For instance; 
+
+- https://www.statlearning.com/

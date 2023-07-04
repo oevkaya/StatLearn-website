@@ -1,0 +1,106 @@
+---
+title: |
+  | ADA 442: Statistical Learning
+  | Homework 1: Simple Linear Regression an Logistic Regression
+# author: "<WRITE YOUR NAME (YOUR NUMBER)>"
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  pdf_document:
+    fig_width: 6 
+    fig_height: 4 
+    number_sections: yes
+    toc: yes
+---
+
+
+```{r setup, include=FALSE, echo=F, warning=F, message=F}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# General Setup for Rmarkdown
+
+We assume **you have already installed R** (https://www.r-project.org) (R Core Team 2021) and **the RStudio IDE** (https://www.rstudio.com). RStudio is not required but recommended, because it makes it easier for an average user to work with R Markdown. **If you do not have RStudio IDE installed, you will have to install Pandoc (http://pandoc.org), otherwise there is no need to install Pandoc separately because RStudio has bundled it**. Next you can **install the rmarkdown package** in R:
+
+```{r, eval=F}
+# Install from CRAN
+install.packages('rmarkdown')
+```
+
+**If you want to generate PDF output, you will need to install LaTeX. For R Markdown users who have not installed LaTeX before, we recommend that you install TinyTeX** (https://yihui.name/tinytex/):
+
+```{r, eval=F}
+install.packages('tinytex')
+tinytex::install_tinytex()  # install TinyTeX
+```
+
+**TinyTeX is a lightweight, portable, cross-platform, and easy-to-maintain LaTeX distribution**. The R companion package tinytex (Xie 2021d) can help you automatically install missing LaTeX packages when compiling LaTeX or R Markdown documents to PDF, and also ensures a LaTeX document is compiled for the correct number of times to resolve all cross-references. **With the rmarkdown package, RStudio/Pandoc, and LaTeX, you should be able to compile most R Markdown documents**.
+
+General Reference: [https://bookdown.org/yihui/rmarkdown/installation.html](https://bookdown.org/yihui/rmarkdown/installation.html)
+
+# ABOUT REPRODUCIBILITY
+
+```{r}
+# FOR REPRODUCIBILITY
+set.seed(442)
+# ALERT: YOU NEED TO USE YOUR STUDENT NUMBER LAST 5 DIGITS 
+# HERE instead of 442 MAKE SURE THAT YOU CHANGED 
+# BEFORE STARTING TO YOUR ANALYSIS
+
+# THIS PART IS IMPORTANT FOR SPLITTING YOUR DATA so that 
+# EACH PERSON HAS DIFFERENT SPLITS AND EVEN IF YOU USE 
+# THE SAME DATA SET YOUR RESULTS WILL BE A BIT DIFFERENT
+
+# ALWAYS USE 80% (TRAINING) - 20% (TESTING) SPLIT RULE in YOUR ANALYSIS
+
+# BUT MOST IMPORTANTLY WHEN I RUN YOUR .Rmd file in my computer, 
+# I NEED TO SEE THE SAME RESULTS THAT YOU MENTIONED IN YOUR PDF REPORT !
+```
+
+## About Homework 1 Details
+
+You should aim to use this section to run linear and logistics regression models in `R` and interpret the corresponding output. You will need to conduct such analyses for the assessed worksheet and interpret the results.
+
+# Part 1: Simple Linear Regression
+
+Exam grades and weekly spent time on self study $x$ (in hours) of 14 statistics students are given in the following table. 
+
+| Self study | 25.0 | 26.2 | 24.9 | 23.7 | 22.8 | 24.6 | 23.6 | 23.0 | 22.5 | 26.2 | 25.8 | 24.0 | 22.1 | 21.7 |
+|---------------|------|------|------|------|------|------|------|------|------|------|------|------|------|------|
+| Exam Grades      |   63 |   53 |   52 |   46 |   34 |   47 |   43 |   37 |   40 |   45 |   53 |   42 |   32 |   49 |
+
+
+1. Create a data frame in `R` with the above data. Plot the data with the weekly spent time on self study in the $x$-axis and exam grades on the $y$-axis (You should include labels for your axes and a title for the plot)
+
+2. Obtain the least squares regression line of exam grades on weekly spent time on self study. Interpret your model result (Using the whole data set)
+
+3. Fit the linear model after partitioning your data set into training and testing (round the number of observations when it is necessary). After fitting the model, compare your parameter estimates with the model result in Question 2. Then, make predictions on testing data and compare with the original observations. 
+
+4. Using the `plot` command, comment on the validity of the assumption of the model that you fit in Question 3 (Note before using the `plot` command you may wish to specify a 2x2 graphics window using `par(mfrow = c(2, 2))`).
+
+5. Calculate a $95\%$ confidence interval for the slope regression parameter for the last model you fit in Question 3. (Note that the number of degrees of freedom should be obtained from the `R` output). For this you can use a built-in function in R
+
+
+# Part 2: Logistic Regression
+
+Consider the available example data set below
+
+```{r}
+# install.packages("mlbench")
+library(mlbench)
+data(BreastCancer)
+
+summary(BreastCancer)
+# You can check the details here
+# https://www.rdocumentation.org/packages/mlbench/versions/2.1-3/topics/BreastCancer
+```
+
+1. Convert your Class variable into a numerical one since you have two classes (benign malignant) you can make it one of them as 0 and the other one is 1
+
+2. Fit a logistic regression model to classify **Class** using Mitoses (DO NOT FORGET TO PARTITION YOUR DATA INTO TRAINING AND TESTING DATA SETS, DO NOT FORGET THAT THIS DATA SET INCLUDES QUALITATIVE PREDICTORS !)
+
+3. Make predictions and compare with the true observations (using TEST DATA SET). Calculate and intepret the Confusion Matrix results
+
+4. Fit a multiple logistic regression to classify **Class** by using more than one predictor
+
+5. Compare simple logistic and multiple logistic regression models using F1-score to make a decision on the best model. Why the overall accuracy is not enough as a performance measure ? Explain shortly 
+
